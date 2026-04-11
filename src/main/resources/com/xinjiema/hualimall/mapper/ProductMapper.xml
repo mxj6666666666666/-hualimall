@@ -3,53 +3,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.xinjiema.hualimall.mapper.ProductMapper">
-
-    <!-- 结果映射：表字段 -> 实体类属性 -->
-    <resultMap id="ProductResultMap" type="com.xinjiema.hualimall.pojo.Product">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="category_id" property="categoryId"/>
-        <result column="price" property="price"/>
-        <result column="stock" property="stock"/>
-        <result column="image_url" property="imageUrl"/>
-        <result column="description" property="description"/>
-        <result column="status" property="status"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
-    </resultMap>
-
     <!-- 分页查询商品列表 -->
-    <select id="selectProductPage" resultMap="ProductResultMap">
-        SELECT
-        id,
-        name,
-        category_id,
-        price,
-        stock,
-        image_url,
-        description,
-        status,
-        create_time,
-        update_time
+    <select id="selectProductPage" resultType="com.xinjiema.hualimall.pojo.Product">
+        SELECT *
         FROM product
-<!--        &lt;!&ndash; 可在此添加动态条件，例如按分类、状态、关键词过滤 &ndash;&gt;-->
-<!--        <if test="categoryId != null">-->
-<!--            AND category_id = #{categoryId}-->
-<!--        </if>-->
-<!--        <if test="status != null">-->
-<!--            AND status = #{status}-->
-<!--        </if>-->
-<!--        <if test="keyword != null and keyword != ''">-->
-<!--            AND name LIKE CONCAT('%', #{keyword}, '%')-->
-<!--        </if>-->
-        ORDER BY create_time DESC
-        LIMIT #{offset}, #{limit}
-    </select>
+<!--        <where>-->
+<!--            <if>-->
 
-    <!-- 统计总数（配合分页使用） -->
-    <select id="countProduct" resultType="int">
-        SELECT COUNT(*)
-        FROM product
+<!--            </if>-->
+<!--        </where>-->
+        ORDER BY create_time DESC
+        LIMIT #{page}, #{size}
+    </select>
+   <!-- 统计总数（配合分页使用） -->
+<!--    <select id="countProduct" resultType="long">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM product-->
 <!--        <if test="categoryId != null">-->
 <!--            AND category_id = #{categoryId}-->
 <!--        </if>-->
@@ -59,6 +28,6 @@
 <!--        <if test="keyword != null and keyword != ''">-->
 <!--            AND name LIKE CONCAT('%', #{keyword}, '%')-->
 <!--        </if>-->
-    </select>
+<!--    </select>-->
 
 </mapper>

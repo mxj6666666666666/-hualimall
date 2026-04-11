@@ -3,8 +3,8 @@ package com.xinjiema.hualimall.pojo;
 import lombok.Data;
 
 @Data
-public class ProQueryParam {
+public class ProQueryParams {
     Integer page = 1;
-    Integer size = 10;
+    Integer pageSize = 10;
 
 }
