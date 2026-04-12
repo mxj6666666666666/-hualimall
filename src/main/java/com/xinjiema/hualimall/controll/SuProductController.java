@@ -20,7 +20,7 @@ public class SuProductController {
     private ProductService productService;
 
     @PostMapping
-    public Result<String> addProduct(Product product) {
+    public Result<String> addProduct(@RequestBody Product product) {
         log.info("添加商品，参数：{}", product);
         productService.addProduct(product);
         return Result.success("添加商品成功");
@@ -41,7 +41,7 @@ public class SuProductController {
         return Result.success("修改商品成功");
     }
 
-    @PutMapping
+    @PutMapping("/batch")
     public Result<String> updateBatch(@RequestBody List<Product> products) {
         log.info("批量修改商品，参数：{}", products);
         productService.updateBatch(products);
@@ -55,7 +55,7 @@ public class SuProductController {
         return Result.success("删除商品成功");
     }
 
-    @DeleteMapping
+    @DeleteMapping("/batch")
     public Result<String> deleteBatch(@RequestBody List<Long> ids) {
         log.info("批量删除商品，参数：{}", ids);
         productService.deleteBatch(ids);
