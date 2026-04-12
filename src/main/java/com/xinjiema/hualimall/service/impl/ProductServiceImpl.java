@@ -26,4 +26,9 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = (Page<Product>) list;
         return new PageResult<Product>(productPage.getTotal(), productPage.getResult());
     }
+
+    @Override
+    public void addProduct(Product product) {
+        productMapper.insertProduct(product);
+    }
 }

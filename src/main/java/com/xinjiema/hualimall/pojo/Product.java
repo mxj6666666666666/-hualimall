@@ -13,14 +13,15 @@ import java.time.LocalDateTime;
 public class Product {
     private Long id;
 
-    private String name;
+    private String name;    // not null
     private Long categoryId;      // 不需要任何注解
-    private BigDecimal price;
-    private Integer stock;
+    private BigDecimal price;   // not null
+    private Integer stock;  // not null (default 0)
     private String imageUrl;
     private String description;
     private Integer status;
 
+    //数据库自动设置
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

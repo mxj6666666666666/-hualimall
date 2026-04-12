@@ -15,6 +15,9 @@ public interface ProductMapper {
      */
     List<Product> selectProductPage(ProQueryParams proQueryParams);
 
+
+    void insertProduct(Product product);
+
 //    /**
 //     * 统计符合条件的商品总数
 //     * @param proQueryParams 查询条件参数
