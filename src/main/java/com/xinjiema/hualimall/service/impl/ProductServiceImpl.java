@@ -21,8 +21,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PageResult<Product> findall(ProQueryParams proQueryParams) {
-        Page<Product> productPage = PageHelper.startPage(proQueryParams.getPage(), proQueryParams.getPageSize());
-        productMapper.selectProductPage(proQueryParams);
+        PageHelper.startPage(proQueryParams.getPage(), proQueryParams.getPageSize());
+        List<Product> list = productMapper.selectProductPage(proQueryParams);
+        Page<Product> productPage = (Page<Product>) list;
         return new PageResult<Product>(productPage.getTotal(), productPage.getResult());
     }
 }

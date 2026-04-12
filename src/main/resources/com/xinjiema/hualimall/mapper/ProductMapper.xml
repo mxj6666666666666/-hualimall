@@ -13,7 +13,6 @@
 <!--            </if>-->
 <!--        </where>-->
         ORDER BY create_time DESC
-        LIMIT #{page}, #{size}
     </select>
    <!-- 统计总数（配合分页使用） -->
 <!--    <select id="countProduct" resultType="long">-->

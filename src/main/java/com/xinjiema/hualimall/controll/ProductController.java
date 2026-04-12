@@ -1,7 +1,9 @@
 package com.xinjiema.hualimall.controll;
 
+import com.xinjiema.hualimall.pojo.PageResult;
 import com.xinjiema.hualimall.pojo.ProQueryParams;
 import com.xinjiema.hualimall.pojo.Product;
+import com.xinjiema.hualimall.pojo.Result;
 import com.xinjiema.hualimall.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,10 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/list")
-    public List<Product> list(ProQueryParams proQueryParams) {
-        productService.findall(proQueryParams);
+    public Result<PageResult<Product>> list(ProQueryParams proQueryParams) {
+        log.info("查询商品列表，参数：{}", proQueryParams);
+        PageResult<Product> result = productService.findall(proQueryParams);
+        log.info("查询商品列表结果：{}", result);
+        return  Result.success(result);
     }
 }
