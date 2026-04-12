@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {
-    private Long id;
+    private Long id;    // not null
 
     private String name;    // not null
     private Long categoryId;      // 不需要任何注解

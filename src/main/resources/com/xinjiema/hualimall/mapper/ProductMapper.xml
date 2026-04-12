@@ -41,4 +41,66 @@
         </trim>
     </insert>
 
+    <!-- 批量增加商品 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO product (name, stock, price, category_id, status, image_url, description)
+        VALUES
+        <foreach collection="products" item="product" separator=",">
+            (#{product.name}, #{product.stock}, #{product.price}, #{product.categoryId}, #{product.status}, #{product.imageUrl}, #{product.description})
+        </foreach>
+    </insert>
+
+    <!-- 修改商品 -->
+    <update id="updateProduct" parameterType="com.xinjiema.hualimall.pojo.Product">
+        UPDATE product
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--批量修改商品-->
+    <update id="updateBatch" >
+        <foreach collection="products" item="product" separator=";">
+            UPDATE product
+            <set>
+                <!--suppress XmlUnresolvedReference -->
+                <if test="product.name != null">name = #{product.name},</if>
+                <!--suppress XmlUnresolvedReference -->
+                <if test="product.stock != null">stock = #{product.stock},</if>
+                <!--suppress XmlUnresolvedReference -->
+                <if test="product.price != null">price = #{product.price},</if>
+                <!--suppress XmlUnresolvedReference -->
+                <if test="product.categoryId != null">category_id = #{product.categoryId},</if>
+                <!--suppress XmlUnresolvedReference -->
+                <if test="product.status != null">status = #{product.status},</if>
+                <!--suppress XmlUnresolvedReference -->
+                <if test="product.imageUrl != null">image_url = #{product.imageUrl},</if>
+                <!--suppress XmlUnresolvedReference -->
+                <if test="product.description != null">description = #{product.description},</if>
+            </set>
+            WHERE id = #{product.id}
+        </foreach>
+    </update>
+
+    <!-- 删除商品 -->
+    <delete id="deleteProduct">
+        DELETE FROM product
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除商品 -->
+    <delete id="deleteBatch">
+        DELETE FROM product
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

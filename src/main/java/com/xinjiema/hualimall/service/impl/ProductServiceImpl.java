@@ -31,4 +31,29 @@ public class ProductServiceImpl implements ProductService {
     public void addProduct(Product product) {
         productMapper.insertProduct(product);
     }
+
+    @Override
+    public void addBatch(List<Product> products) {
+        productMapper.insertBatch(products);
+    }
+
+    @Override
+    public void updateProduct(Product product) {
+        productMapper.updateProduct(product);
+    }
+
+    @Override
+    public void updateBatch(List<Product> products) {
+        productMapper.updateBatch(products);
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        productMapper.deleteProduct(id);
+    }
+
+    @Override
+    public void deleteBatch(List<Long> ids) {
+        productMapper.deleteBatch(ids);
+    }
 }

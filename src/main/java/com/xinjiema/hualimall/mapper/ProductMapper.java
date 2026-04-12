@@ -3,6 +3,7 @@ package com.xinjiema.hualimall.mapper;
 import com.xinjiema.hualimall.pojo.ProQueryParams;
 import com.xinjiema.hualimall.pojo.Product;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,6 +18,16 @@ public interface ProductMapper {
 
 
     void insertProduct(Product product);
+
+    void updateProduct(Product product);
+
+    void updateBatch(@Param("products") List<Product> products);
+
+    void deleteProduct(Long id);
+
+    void deleteBatch(List<Long> ids);
+
+    void insertBatch(List<Product> products);
 
 //    /**
 //     * 统计符合条件的商品总数
