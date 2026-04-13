@@ -1,8 +1,8 @@
 package com.xinjiema.hualimall.mapper;
 
+import com.xinjiema.hualimall.pojo.OrdQueryParams;
 import com.xinjiema.hualimall.pojo.Order;
 import com.xinjiema.hualimall.pojo.OrderItem;
-import com.xinjiema.hualimall.pojo.ProQueryParams;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,7 +15,7 @@ public interface OrderMapper {
 
     void insertOrderItems(@Param("items") List<OrderItem> items);
 
-    List<Order> selectOrderPage(ProQueryParams params);
+    List<Order> selectOrderPage(OrdQueryParams params);
 
     Order selectById(Long id);
 

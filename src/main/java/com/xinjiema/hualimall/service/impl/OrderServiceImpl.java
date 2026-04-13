@@ -4,11 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.xinjiema.hualimall.mapper.OrderMapper;
 import com.xinjiema.hualimall.mapper.ProductMapper;
-import com.xinjiema.hualimall.pojo.Order;
-import com.xinjiema.hualimall.pojo.OrderItem;
-import com.xinjiema.hualimall.pojo.PageResult;
-import com.xinjiema.hualimall.pojo.ProQueryParams;
-import com.xinjiema.hualimall.pojo.Product;
+import com.xinjiema.hualimall.pojo.*;
 import com.xinjiema.hualimall.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,9 +68,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PageResult<Order> getOrderList(ProQueryParams proQueryParams) {
-        PageHelper.startPage(proQueryParams.getPage(), proQueryParams.getPageSize());
-        List<Order> list = orderMapper.selectOrderPage(proQueryParams);
+    public PageResult<Order> getOrderList(OrdQueryParams ordQueryParams) {
+        PageHelper.startPage(ordQueryParams.getPage(), ordQueryParams.getPageSize());
+        List<Order> list = orderMapper.selectOrderPage(ordQueryParams);
         Page<Order> orderPage = (Page<Order>) list;
         
         // 遍历订单列表，为每个订单查询并设置对应的商品明细

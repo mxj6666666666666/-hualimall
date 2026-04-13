@@ -1,9 +1,6 @@
 package com.xinjiema.hualimall.controll;
 
-import com.xinjiema.hualimall.pojo.Order;
-import com.xinjiema.hualimall.pojo.PageResult;
-import com.xinjiema.hualimall.pojo.ProQueryParams;
-import com.xinjiema.hualimall.pojo.Result;
+import com.xinjiema.hualimall.pojo.*;
 import com.xinjiema.hualimall.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +22,9 @@ public class OrderController {
     }
 
     @GetMapping("/list")
-    public Result<PageResult<Order>> list(ProQueryParams proQueryParams) {
-        log.info("查询订单列表，参数：{}", proQueryParams);
-        PageResult<Order> result = orderService.getOrderList(proQueryParams);
+    public Result<PageResult<Order>> list(OrdQueryParams ordQueryParams) {
+        log.info("查询订单列表，参数：{}", ordQueryParams);
+        PageResult<Order> result = orderService.getOrderList(ordQueryParams);
         return Result.success(result);
     }
 

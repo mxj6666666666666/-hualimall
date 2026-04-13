@@ -1,8 +1,8 @@
 package com.xinjiema.hualimall.service;
 
+import com.xinjiema.hualimall.pojo.OrdQueryParams;
 import com.xinjiema.hualimall.pojo.Order;
 import com.xinjiema.hualimall.pojo.PageResult;
-import com.xinjiema.hualimall.pojo.ProQueryParams;
 
 public interface OrderService {
 
@@ -10,7 +10,7 @@ public interface OrderService {
     Order createOrder(Order order);
 
     // 查询订单列表
-    PageResult<Order> getOrderList(ProQueryParams proQueryParams);
+    PageResult<Order> getOrderList(OrdQueryParams ordQueryParams);
 
     // 获取订单详情
     Order getOrderById(Long id);
