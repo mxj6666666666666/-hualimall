@@ -4,11 +4,13 @@
 
 <mapper namespace="com.xinjiema.hualimall.mapper.OrderMapper">
 
+    <!-- 插入订单主表记录，并返回自动生成的主键 id -->
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO orders (order_no, user_id, total_amount, status)
         VALUES (#{orderNo}, #{userId}, #{totalAmount}, #{status})
     </insert>
 
+    <!-- 批量插入订单的商品明细列表 -->
     <insert id="insertOrderItems">
         INSERT INTO order_item (order_id, product_id, product_name, product_price, quantity, total_price)
         VALUES
@@ -17,22 +19,25 @@
         </foreach>
     </insert>
 
+    <!-- 查询订单列表（支持分页），按创建时间降序排列 -->
     <select id="selectOrderPage" resultType="com.xinjiema.hualimall.pojo.Order">
         SELECT * FROM orders
         ORDER BY create_time DESC
     </select>
 
+    <!-- 根据订单id查询单个订单的主表信息 -->
     <select id="selectById" resultType="com.xinjiema.hualimall.pojo.Order">
         SELECT * FROM orders WHERE id = #{id}
     </select>
 
+    <!-- 根据订单id查询该订单包含的所有商品明细 -->
     <select id="selectItemsByOrderId" resultType="com.xinjiema.hualimall.pojo.OrderItem">
         SELECT * FROM order_item WHERE order_id = #{orderId}
     </select>
 
+    <!-- 更新订单的状态（例如用于取消订单） -->
     <update id="updateOrderStatus">
         UPDATE orders SET status = #{status} WHERE id = #{id}
     </update>
 
 </mapper>
-
