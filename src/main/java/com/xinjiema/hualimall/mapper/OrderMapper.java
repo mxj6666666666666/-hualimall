@@ -19,8 +19,7 @@ public interface OrderMapper {
 
     Order selectById(Long id);
 
-    List<OrderItem> selectItemsByOrderId(Long orderId);
+    List<OrderItem> selectItemsByOrderId(@Param("orderId") Long orderId);
 
     void updateOrderStatus(@Param("id") Long id, @Param("status") Integer status);
 }
-

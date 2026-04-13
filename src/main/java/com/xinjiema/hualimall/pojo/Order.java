@@ -12,11 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Order {
-    private Long id;
-    private String orderNo;       // 订单编号
-    private Long userId;          // 用户ID
-    private BigDecimal totalAmount; // 总金额
-    private Integer status;       // 订单状态：0-待支付 1-已支付 2-已取消 3-已完成
+    private Long id;    // not null
+    private String orderNo;       // 订单编号  no null
+    private Long userId;          // 用户ID not null
+    private BigDecimal totalAmount; // 总金额 not null
+    private Integer status;       // 订单状态：0-待支付 1-已支付 2-已取消 3-已完成 not null
     
     // 数据库自动设置
     private LocalDateTime createTime;

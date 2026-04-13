@@ -17,3 +17,7 @@ spring:
 logging:
   level:
     org.springframework.jdbc.support.JdbcTransactionManager: INFO
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true

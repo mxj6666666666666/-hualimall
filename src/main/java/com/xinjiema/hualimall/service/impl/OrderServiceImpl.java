@@ -28,6 +28,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order createOrder(Order order) {
+
+        if (order.getUserId() == null) {
+            throw new RuntimeException("创建订单失败，用户ID不能为空");
+        }
+
         // 生成订单号
         order.setOrderNo(UUID.randomUUID().toString().replace("-", ""));
         order.setStatus(0); // 0-待支付
@@ -71,6 +76,13 @@ public class OrderServiceImpl implements OrderService {
         PageHelper.startPage(proQueryParams.getPage(), proQueryParams.getPageSize());
         List<Order> list = orderMapper.selectOrderPage(proQueryParams);
         Page<Order> orderPage = (Page<Order>) list;
+        
+        // 遍历订单列表，为每个订单查询并设置对应的商品明细
+        for (Order order : orderPage.getResult()) {
+            List<OrderItem> items = orderMapper.selectItemsByOrderId(order.getId());
+            order.setItems(items);
+        }
+        
         return new PageResult<>(orderPage.getTotal(), orderPage.getResult());
     }
 
