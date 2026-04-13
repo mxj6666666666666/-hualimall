@@ -10,6 +10,8 @@ import java.util.List;
 @Mapper
 public interface ProductMapper {
 
+    Product selectById(Long id);
+
     /**
      * 分页查询商品
      * @param proQueryParams 包含 offset, limit, categoryId, status, keyword 等参数
@@ -28,6 +30,7 @@ public interface ProductMapper {
     void deleteBatch(List<Long> ids);
 
     void insertBatch(List<Product> products);
+
 
 //    /**
 //     * 统计符合条件的商品总数

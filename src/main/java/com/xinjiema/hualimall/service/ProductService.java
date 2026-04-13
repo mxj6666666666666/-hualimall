@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ProductService {
 
+    Product findById(Long id);
+
     PageResult<Product> findall(ProQueryParams proQueryParams);
 
     void addProduct(Product product);
@@ -21,4 +23,5 @@ public interface ProductService {
     void deleteBatch(List<Long> ids);
 
     void addBatch(List<Product> products);
+
 }

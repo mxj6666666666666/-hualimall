@@ -3,6 +3,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.xinjiema.hualimall.mapper.ProductMapper">
+
+    <!-- 根据id查询商品 -->
+    <select id="selectById" resultType="com.xinjiema.hualimall.pojo.Product">
+        SELECT  *
+        FROM product
+        WHERE id = #{id}
+    </select>
+
     <!-- 分页查询商品列表 -->
     <select id="selectProductPage" resultType="com.xinjiema.hualimall.pojo.Product">
         SELECT *

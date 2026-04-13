@@ -20,6 +20,11 @@ public class ProductServiceImpl implements ProductService {
     ProductMapper productMapper;
 
     @Override
+    public Product findById(Long id) {
+        return productMapper.selectById(id);
+    }
+
+    @Override
     public PageResult<Product> findall(ProQueryParams proQueryParams) {
         PageHelper.startPage(proQueryParams.getPage(), proQueryParams.getPageSize());
         List<Product> list = productMapper.selectProductPage(proQueryParams);
