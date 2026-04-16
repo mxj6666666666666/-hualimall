@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("用户已被禁用");
         }
 
-        String token = JwtUtils.createToken(user.getId(), user.getUsername());
+        String token = JwtUtils.createToken(user.getId(), user.getUsername(), user.getRole());
         return new LoginResponse(token);
     }
 
