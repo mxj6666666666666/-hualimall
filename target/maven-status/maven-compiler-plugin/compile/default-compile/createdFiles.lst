@@ -1,0 +1,2 @@
+com\xinjiema\hualimall\config\WebMvcConfig.class
+com\xinjiema\hualimall\interceptor\AuthInterceptor.class
