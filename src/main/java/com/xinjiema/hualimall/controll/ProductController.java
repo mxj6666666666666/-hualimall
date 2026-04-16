@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @Slf4j
 @RestController
 @RequestMapping("/products")
@@ -29,7 +27,7 @@ public class ProductController {
         return Result.success(product);
     }
 
-    @GetMapping("/list")
+    @GetMapping({"", "/list"})
     public Result<PageResult<Product>> list(ProQueryParams proQueryParams) {
         log.info("查询商品列表，参数：{}", proQueryParams);
         PageResult<Product> result = productService.findall(proQueryParams);

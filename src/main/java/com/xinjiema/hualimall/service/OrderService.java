@@ -17,5 +17,8 @@ public interface OrderService {
 
     // 取消订单
     void cancelOrder(Long id);
+
+    // 管理端更新订单状态
+    void updateOrderStatus(Long id, Integer status);
 }
 

@@ -15,12 +15,20 @@
     <select id="selectProductPage" resultType="com.xinjiema.hualimall.pojo.Product">
         SELECT *
         FROM product
-#         以下是可能需要的查询条件，根据实际需求进行调整：
-<!--        <where>-->
-<!--            <if>-->
-
-<!--            </if>-->
-<!--        </where>-->
+        <where>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    name LIKE CONCAT('%', #{keyword}, '%')
+                    OR description LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
         ORDER BY create_time DESC
     </select>
 
@@ -111,4 +119,11 @@
             #{id}
         </foreach>
     </delete>
+
+    <update id="decreaseStock">
+        UPDATE product
+        SET stock = stock - #{quantity}
+        WHERE id = #{id}
+          AND stock <![CDATA[>=]]> #{quantity}
+    </update>
 </mapper>

@@ -3,9 +3,7 @@ package com.xinjiema.hualimall.controll;
 import com.xinjiema.hualimall.pojo.Product;
 import com.xinjiema.hualimall.pojo.Result;
 import com.xinjiema.hualimall.service.ProductService;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +32,7 @@ public class SuProductController {
     }
 
     @PutMapping("/{id}")
-    public Result<String> updateProduct(@PathVariable Long id, Product product) {
+    public Result<String> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         log.info("修改 id = {} 的商品，参数：{}", id, product);
         product.setId(id);
         productService.updateProduct(product);

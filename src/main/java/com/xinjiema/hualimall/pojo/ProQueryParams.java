@@ -10,5 +10,8 @@ import lombok.NoArgsConstructor;
 public class ProQueryParams {
     Integer page = 1;
     Integer pageSize = 10;
+    Long categoryId;
+    Integer status;
+    String keyword;
 
 }

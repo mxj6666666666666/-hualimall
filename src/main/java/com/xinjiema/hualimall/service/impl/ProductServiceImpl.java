@@ -8,7 +8,6 @@ import com.xinjiema.hualimall.pojo.ProQueryParams;
 import com.xinjiema.hualimall.pojo.Product;
 import com.xinjiema.hualimall.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,11 +20,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product findById(Long id) {
+        if (id == null || id < 1) {
+            throw new IllegalArgumentException("商品ID非法");
+        }
         return productMapper.selectById(id);
     }
 
     @Override
     public PageResult<Product> findall(ProQueryParams proQueryParams) {
+        if (proQueryParams.getPage() == null || proQueryParams.getPage() < 1) {
+            throw new IllegalArgumentException("page 必须大于等于 1");
+        }
+        if (proQueryParams.getPageSize() == null || proQueryParams.getPageSize() < 1) {
+            throw new IllegalArgumentException("pageSize 必须大于等于 1");
+        }
         PageHelper.startPage(proQueryParams.getPage(), proQueryParams.getPageSize());
         List<Product> list = productMapper.selectProductPage(proQueryParams);
         Page<Product> productPage = (Page<Product>) list;

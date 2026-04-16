@@ -27,9 +27,11 @@ public interface ProductMapper {
 
     void deleteProduct(Long id);
 
-    void deleteBatch(List<Long> ids);
+    void deleteBatch(@Param("ids") List<Long> ids);
 
-    void insertBatch(List<Product> products);
+    void insertBatch(@Param("products") List<Product> products);
+
+    int decreaseStock(@Param("id") Long id, @Param("quantity") Integer quantity);
 
 
 //    /**
