@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xinjiema.hualimall.mapper.CartMapper">
+
+    <select id="selectCartListByUserId" resultType="com.xinjiema.hualimall.pojo.CartItem">
+        SELECT c.id,
+               c.user_id,
+               c.product_id,
+               c.quantity,
+               c.selected,
+               c.create_time,
+               c.update_time,
+               p.name  AS product_name,
+               p.price AS product_price,
+               p.image_url
+        FROM cart c
+                 JOIN product p ON c.product_id = p.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.create_time DESC
+    </select>
+
+    <select id="selectByUserIdAndProductId" resultType="com.xinjiema.hualimall.pojo.CartItem">
+        SELECT id, user_id, product_id, quantity, selected, create_time, update_time
+        FROM cart
+        WHERE user_id = #{userId}
+          AND product_id = #{productId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cart (user_id, product_id, quantity, selected)
+        VALUES (#{userId}, #{productId}, #{quantity}, #{selected})
+    </insert>
+
+    <update id="updateQuantityAndSelected">
+        UPDATE cart
+        <set>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="selected != null">selected = #{selected},</if>
+        </set>
+        WHERE id = #{id}
+          AND user_id = #{userId}
+    </update>
+
+    <delete id="deleteByIdAndUserId">
+        DELETE
+        FROM cart
+        WHERE id = #{id}
+          AND user_id = #{userId}
+    </delete>
+
+    <select id="selectSelectedByUserId" resultType="com.xinjiema.hualimall.pojo.CartItem">
+        SELECT id, user_id, product_id, quantity, selected, create_time, update_time
+        FROM cart
+        WHERE user_id = #{userId}
+          AND selected = 1
+    </select>
+
+    <delete id="deleteSelectedByUserId">
+        DELETE
+        FROM cart
+        WHERE user_id = #{userId}
+          AND selected = 1
+    </delete>
+</mapper>
