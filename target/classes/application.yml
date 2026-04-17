@@ -21,3 +21,6 @@ logging:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+
+jwt:
+  secret: MySuperSecretKeyForJwt@2026#HualiMall

@@ -17,6 +17,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @Override
     public void register(User user) {
         if (user == null) {
@@ -50,7 +53,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("用户已被禁用");
         }
 
-        String token = JwtUtils.createToken(user.getId(), user.getUsername(), user.getRole());
+        String token = jwtUtils.createToken(user.getId(), user.getUsername(), user.getRole());
         return new LoginResponse(token);
     }
 

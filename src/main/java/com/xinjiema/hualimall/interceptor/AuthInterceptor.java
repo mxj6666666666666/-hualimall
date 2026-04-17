@@ -4,6 +4,7 @@ import com.xinjiema.hualimall.utils.AuthContext;
 import com.xinjiema.hualimall.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -13,6 +14,9 @@ import java.util.Locale;
 
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -32,7 +36,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             throw new SecurityException("token不能为空");
         }
 
-        JwtUtils.Claims claims = JwtUtils.parseToken(token);
+        JwtUtils.Claims claims = jwtUtils.parseToken(token);
         String requestUri = request.getRequestURI();
         if (isAdminPath(requestUri) && !"ADMIN".equals(claims.role())) {
             throw new SecurityException("无管理员权限");

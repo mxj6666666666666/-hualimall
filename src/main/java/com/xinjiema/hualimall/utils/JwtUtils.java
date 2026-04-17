@@ -1,5 +1,7 @@
 package com.xinjiema.hualimall.utils;
 
+import com.xinjiema.hualimall.config.JwtProperties;
+import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -12,17 +14,25 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 
+@Component
 public class JwtUtils {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final String SECRET = resolveSecret();
+    private final String SECRET ;
     private static final long EXPIRE_SECONDS = 7L * 24 * 60 * 60;
     private static final String ISSUER = "hualimall";
 
-    private JwtUtils() {
+    // 通过构造器注入 secret（从 JwtProperties 或直接 @Value）
+    public JwtUtils(JwtProperties jwtProperties) {
+        String secret = jwtProperties.getSecret();
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new IllegalStateException("JWT密钥未配置，请在 application.yml 或环境变量 中设置 jwt.secret");
+        }
+        this.SECRET = secret.trim();
     }
 
-    public static String createToken(Long userId, String username, String role) {
+
+    public  String createToken(Long userId, String username, String role) {
         try {
             if (userId == null || userId < 1) {
                 throw new IllegalArgumentException("用户ID非法");
@@ -54,7 +64,7 @@ public class JwtUtils {
         }
     }
 
-    public static Claims parseToken(String token) {
+    public  Claims parseToken(String token) {
         try {
             if (token == null || token.trim().isEmpty()) {
                 throw new SecurityException("token不能为空");
@@ -123,24 +133,12 @@ public class JwtUtils {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(signBytes);
     }
 
-    private static byte[] base64UrlDecode(String content) {
+    private byte[] base64UrlDecode(String content) {
         try {
             return Base64.getUrlDecoder().decode(content);
         } catch (IllegalArgumentException e) {
             throw new SecurityException("token编码不正确");
         }
-    }
-
-    private static String resolveSecret() {
-        String fromProperty = System.getProperty("jwt.secret");
-        if (fromProperty != null && !fromProperty.trim().isEmpty()) {
-            return fromProperty.trim();
-        }
-        String fromEnv = System.getenv("JWT_SECRET");
-        if (fromEnv != null && !fromEnv.trim().isEmpty()) {
-            return fromEnv.trim();
-        }
-        return "hualimall-secret-key-change-me";
     }
 
     public record Claims(Long userId, String username, String role) {
