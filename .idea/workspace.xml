@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="98f79a55-68c0-4520-9ee9-d1a54c296814" name="更改" comment="编写了接口文档" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_D:/project/hualimall" value="3CbLA0rxrjH9uaNysPIh60wadeN" />
+      <entry key="_D:/project/hualimalll" value="3ByEmG5xcOA65RThIaVB1OfyzZn" />
+    </persistenceIdMap>
+  </component>
+  <component name="CopilotUserSelectedChatMode">
+    <option name="chatModeId" value="Ask" />
+  </component>
+  <component name="CopilotUserSelectedModel">
+    <selectedModels>
+      <entry key="chat-panel" value="Gemini 3.1 Pro" />
+      <entry key="agent-panel" value="Gemini 3.1 Pro" />
+    </selectedModels>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <branch-grouping />
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;mxj6666666666666&quot;
+  }
+}</component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="6221e39d-d15c-4f1c-9981-f1de2165d610" />
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:mxj6666666666666/-hualimall.git&quot;,
+    &quot;accountId&quot;: &quot;6221e39d-d15c-4f1c-9981-f1de2165d610&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../../maven-repository/org/mybatis/mybatis/3.5.19/mybatis-3.5.19.jar!/org/apache/ibatis/ognl/OgnlRuntime.class" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="localRepository" value="D:\maven-repository" />
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+        <option name="userSettingsFile" value="D:\app\apache-maven-4.0.0-rc-5-bin\apache-maven-4.0.0-rc-5\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="openjdk-25" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="3ByEmG5xcOA65RThIaVB1OfyzZn" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven.hualimall [org.apache.maven.plugins:maven-clean-plugin:3.5.0:clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.hualimall [test].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.HualimalllApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/project/hualimalll/docs/require&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;模块&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ],
+    &quot;com.intellij.ide.scratch.LRUPopupBuilder$1/SQL 方言&quot;: [
+      &quot;MySQL&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\project\hualimalll\docs\require" />
+      <recent name="D:\project\hualimalll\src\main\resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\project\hualimall\server" />
+      <recent name="D:\project\hualimalll\backend" />
+      <recent name="D:\project\hualimalll\docs\require" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.xinjiema.hualimall.config" />
+      <recent name="com.xinjiema.hualimall.service" />
+      <recent name="com.xinjiema.hualimall.controll.admin" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="HualimalllApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="hualimall" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.xinjiema.hualimall.HualimalllApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28539.33" />
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28539.33" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="98f79a55-68c0-4520-9ee9-d1a54c296814" name="更改" comment="" />
+      <created>1775472687876</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1775472687876</updated>
+      <workItem from="1775472688982" duration="1256000" />
+      <workItem from="1775719911247" duration="5615000" />
+      <workItem from="1775725963936" duration="11279000" />
+      <workItem from="1775809219254" duration="910000" />
+      <workItem from="1775899262432" duration="11342000" />
+      <workItem from="1775963450642" duration="13274000" />
+      <workItem from="1776000291084" duration="1689000" />
+      <workItem from="1776068256019" duration="3025000" />
+      <workItem from="1776074179753" duration="8947000" />
+      <workItem from="1776162128890" duration="399000" />
+      <workItem from="1776162562963" duration="2008000" />
+      <workItem from="1776167834613" duration="731000" />
+      <workItem from="1776168671270" duration="4180000" />
+      <workItem from="1776262962947" duration="2415000" />
+      <workItem from="1776324523438" duration="4914000" />
+      <workItem from="1776333239259" duration="11589000" />
+      <workItem from="1776384139379" duration="9704000" />
+      <workItem from="1776434212881" duration="2622000" />
+      <workItem from="1776440783189" duration="175000" />
+      <workItem from="1776649161224" duration="764000" />
+      <workItem from="1776650357471" duration="287000" />
+      <workItem from="1776650684895" duration="65000" />
+    </task>
+    <task id="LOCAL-00001" summary="firstpush">
+      <option name="closed" value="true" />
+      <created>1775899906154</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1775899906154</updated>
+    </task>
+    <task id="LOCAL-00002" summary="gitinit">
+      <option name="closed" value="true" />
+      <created>1775899935521</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1775899935521</updated>
+    </task>
+    <task id="LOCAL-00003" summary="gitinit">
+      <option name="closed" value="true" />
+      <created>1775914316025</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1775914316025</updated>
+    </task>
+    <task id="LOCAL-00004" summary="gitinit">
+      <option name="closed" value="true" />
+      <created>1775914329236</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1775914329236</updated>
+    </task>
+    <task id="LOCAL-00005" summary="完成了分页查询mapper和service">
+      <option name="closed" value="true" />
+      <created>1775914571869</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1775914571869</updated>
+    </task>
+    <task id="LOCAL-00006" summary="完成了分页查询mapper和service">
+      <option name="closed" value="true" />
+      <created>1775914799752</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1775914799752</updated>
+    </task>
+    <task id="LOCAL-00007" summary="完成了分页查询mapper和service">
+      <option name="closed" value="true" />
+      <created>1775914873174</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1775914873174</updated>
+    </task>
+    <task id="LOCAL-00008" summary="完成了分页查询mapper和service">
+      <option name="closed" value="true" />
+      <created>1775914915729</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1775914915729</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Merge branch 'master' of github.com:mxj6666666666666/-hualimall&#10;merge remote changes">
+      <option name="closed" value="true" />
+      <created>1775915074813</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1775915074813</updated>
+    </task>
+    <task id="LOCAL-00010" summary="已实现分页查询的基本功能">
+      <option name="closed" value="true" />
+      <created>1775966041693</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1775966041693</updated>
+    </task>
+    <task id="LOCAL-00011" summary="已实现增加商品的基本功能">
+      <option name="closed" value="true" />
+      <created>1775975047451</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1775975047451</updated>
+    </task>
+    <task id="LOCAL-00012" summary="已实现批量增加，修改，批量修改，删除，批量商品的基本功能">
+      <option name="closed" value="true" />
+      <created>1775981776047</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1775981776047</updated>
+    </task>
+    <task id="LOCAL-00013" summary="已实现批量增加，修改，批量修改，删除，批量商品的基本功能">
+      <option name="closed" value="true" />
+      <created>1775981853503</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1775981853503</updated>
+    </task>
+    <task id="LOCAL-00014" summary="进行了参数传入的优化">
+      <option name="closed" value="true" />
+      <created>1776003641091</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1776003641091</updated>
+    </task>
+    <task id="LOCAL-00015" summary="修改任何状态的订单都可以取消的bug，以及修改了前端能修改价格的bug">
+      <option name="closed" value="true" />
+      <created>1776076344891</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1776076344891</updated>
+    </task>
+    <task id="LOCAL-00016" summary="修改了数据库映射bug,order的item不显示的bug，并且完成了前端响应调试">
+      <option name="closed" value="true" />
+      <created>1776081917147</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1776081917147</updated>
+    </task>
+    <task id="LOCAL-00017" summary="修正了order和product的参数冲突bug">
+      <option name="closed" value="true" />
+      <created>1776082944874</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1776082944874</updated>
+    </task>
+    <task id="LOCAL-00018" summary="修正了order和product的参数冲突bug">
+      <option name="closed" value="true" />
+      <created>1776083112613</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1776083112613</updated>
+    </task>
+    <task id="LOCAL-00019" summary="首次接触vibecoding">
+      <option name="closed" value="true" />
+      <created>1776324867300</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1776324867300</updated>
+    </task>
+    <task id="LOCAL-00020" summary="首次接触vibecoding">
+      <option name="closed" value="true" />
+      <created>1776324973968</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1776324973968</updated>
+    </task>
+    <task id="LOCAL-00021" summary="实现了较为完整的登录功能（jwt）">
+      <option name="closed" value="true" />
+      <created>1776339522388</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1776339522388</updated>
+    </task>
+    <task id="LOCAL-00022" summary="实现了较为完整的登录功能（jwt）">
+      <option name="closed" value="true" />
+      <created>1776339539039</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1776339539039</updated>
+    </task>
+    <task id="LOCAL-00023" summary="编写了接口文档">
+      <option name="closed" value="true" />
+      <created>1776440160474</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1776440160474</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="User">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="*" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="firstpush" />
+    <MESSAGE value="gitinit" />
+    <MESSAGE value="firstpush" />
+    <MESSAGE value="完成了分页查询mapper和service" />
+    <MESSAGE value="完成了分页查询mapper和service" />
+    <MESSAGE value="Merge branch 'master' of github.com:mxj6666666666666/-hualimall&#10;merge remote changes" />
+    <MESSAGE value="已实现分页查询的基本功能" />
+    <MESSAGE value="已实现增加商品的基本功能" />
+    <MESSAGE value="已实现批量增加，修改，批量修改，删除，批量删除商品的基本功能" />
+    <MESSAGE value="已实现批量增加，修改，批量修改，删除，批量删除商品的基本功能" />
+    <MESSAGE value="已实现批量增加，修改，批量修改，删除，批量商品的基本功能" />
+    <MESSAGE value="进行了参数传入的优化" />
+    <MESSAGE value="修改任何状态的订单都可以取消的bug，以及修改了前端能修改价格的bug" />
+    <MESSAGE value="修改了数据库映射bug,order的item不显示的bug，并且完成了前端响应调试" />
+    <MESSAGE value="文件参与版本控制" />
+    <MESSAGE value="文件参与版本控制" />
+    <MESSAGE value="首次接触vibecoding" />
+    <MESSAGE value="实现了较为完整的登录功能（jwt）" />
+    <MESSAGE value="编写了接口文档" />
+    <option name="LAST_COMMIT_MESSAGE" value="编写了接口文档" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>
