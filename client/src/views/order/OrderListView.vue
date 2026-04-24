@@ -1,6 +1,7 @@
 <template>
   <section class="container page">
-    <h1>我的订单</h1>
+    <h1>订单档案</h1>
+    <p class="sub">追踪每一笔高端单品的下单与履约进度</p>
     <p v-if="error" class="error">{{ error }}</p>
     <div v-if="loading" class="card">加载中...</div>
     <div v-else-if="orders.length === 0" class="card">暂无订单</div>

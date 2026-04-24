@@ -1,7 +1,7 @@
 <template>
   <section class="container page">
-    <h1>购物车</h1>
-    <p class="sub">勾选商品后可直接创建订单</p>
+    <h1>购物袋</h1>
+    <p class="sub">精选单品已为您归集，确认后即可一键生成订单</p>
     <p v-if="error" class="error">{{ error }}</p>
     <div v-if="loading" class="card">加载中...</div>
     <div v-else-if="items.length === 0" class="card">购物车为空</div>

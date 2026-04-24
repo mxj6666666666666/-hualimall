@@ -3,7 +3,8 @@
     <p v-if="error" class="error">{{ error }}</p>
     <article class="card detail-card" v-if="detail">
       <img :src="detail.imageUrl || fallbackImage" :alt="detail.name" />
-      <div>
+      <div class="detail-panel">
+        <p class="hero-eyebrow">Atelier Detail</p>
         <h1>{{ detail.name }}</h1>
         <p class="sub">{{ detail.description || '暂无描述' }}</p>
         <p class="price">¥ {{ formatPrice(detail.price) }}</p>

@@ -3,6 +3,7 @@
     <p v-if="error" class="error">{{ error }}</p>
     <article class="card" v-if="detail">
       <h1>订单详情</h1>
+      <p class="sub">Order Couture Record</p>
       <p class="sub">订单号：{{ detail.orderNo }}</p>
       <p class="sub">金额：¥ {{ formatPrice(detail.totalAmount) }}</p>
       <p class="sub">状态：{{ formatOrderStatus(detail.status) }}</p>

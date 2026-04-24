@@ -1,6 +1,7 @@
 <template>
   <section class="container page">
-    <h1>管理端 · 订单管理</h1>
+    <h1>管理端 · 订单履约管理</h1>
+    <p class="sub">统一监控订单状态，保持高品质交付节奏</p>
     <p v-if="error" class="error">{{ error }}</p>
     <div class="card table-wrap">
       <table class="table">

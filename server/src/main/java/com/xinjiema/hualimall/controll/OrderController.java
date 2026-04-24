@@ -36,10 +36,9 @@ public class OrderController {
     }
 
     @PutMapping({"/{id}/cancel", "/cancel/{id}"})
-    public Result<String> cancelOrder(@PathVariable Long id) {
-        log.info("取消 id = {} 的订单", id);
+    public Result<String>    cancelOrder(@PathVariable Long id) {
+        log.info("取消订单，id: {}", id);
         orderService.cancelOrder(id);
         return Result.success("订单取消成功");
     }
 }
-

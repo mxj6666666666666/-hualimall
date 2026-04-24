@@ -1,6 +1,7 @@
 <template>
   <section class="container page">
-    <h1>管理端 · 商品管理</h1>
+    <h1>管理端 · 商品陈列管理</h1>
+    <p class="sub">以高端视觉规范维护商品信息与陈列状态</p>
     <p v-if="error" class="error">{{ error }}</p>
     <div class="card">
       <div class="toolbar">

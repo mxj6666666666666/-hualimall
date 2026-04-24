@@ -1,8 +1,14 @@
 <template>
   <section class="container page">
-    <div class="hero-card">
-      <h1>商品中心</h1>
-      <p class="sub">简洁筛选，快速找到你想要的商品</p>
+    <div class="hero-stage">
+      <p class="hero-eyebrow">Huali Signature Selection</p>
+      <h1 class="hero-title">探索高端时尚单品</h1>
+      <p class="hero-sub">在奶油色留白与暖色聚光中，探索更具质感的服饰与风格。</p>
+    </div>
+
+    <div class="card">
+      <h3>甄选筛选</h3>
+      <p class="sub">按关键词、分类与状态快速聚焦心仪单品</p>
       <div class="toolbar">
         <input v-model.trim="query.keyword" placeholder="搜索商品名称/描述" @keyup.enter="search" />
         <input v-model.number="query.categoryId" type="number" min="1" placeholder="分类ID（可选）" />

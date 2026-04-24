@@ -1,8 +1,8 @@
 <template>
   <section class="auth-wrap">
     <div class="card auth-card">
-      <h1>创建账号</h1>
-      <p class="sub">简洁、安全、快速开始</p>
+      <h1>开启专属账号</h1>
+      <p class="sub">轻盈注册，进入高端时尚精选空间</p>
       <form class="form" @submit.prevent="handleRegister">
         <input v-model.trim="form.username" placeholder="用户名" />
         <input v-model.trim="form.nickname" placeholder="昵称" />
