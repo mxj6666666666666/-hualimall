@@ -10,6 +10,7 @@
         <div v-for="item in items" :key="item.id" class="cart-row">
           <div class="cart-title">
             <input type="checkbox" :checked="item.selected === 1" @change="toggleSelected(item)" />
+            <img class="cart-thumb" :src="resolveMediaUrl(item.imageUrl) || fallbackImage" :alt="item.productName" />
             <span>{{ item.productName }}</span>
           </div>
           <span class="sub">¥ {{ formatPrice(item.productPrice) }}</span>
@@ -38,12 +39,14 @@ import { useRouter } from 'vue-router'
 import { cartApi } from '../../api/modules/cart'
 import { orderApi } from '../../api/modules/order'
 import { formatPrice } from '../../utils/format'
+import { resolveMediaUrl } from '../../utils/media'
 
 const items = ref([])
 const loading = ref(false)
 const submitting = ref(false)
 const error = ref('')
 const router = useRouter()
+const fallbackImage = 'https://via.placeholder.com/120x120?text=Goods'
 
 const selectedItems = computed(() => items.value.filter((item) => item.selected === 1))
 const selectedCount = computed(() => selectedItems.value.length)

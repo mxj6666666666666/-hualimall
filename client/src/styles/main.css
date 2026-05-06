@@ -113,6 +113,15 @@ a {
   font-size: 14px;
 }
 
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #eef1f7;
+}
+
 .page {
   display: grid;
   gap: 22px;
@@ -406,6 +415,14 @@ select:focus {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.cart-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: linear-gradient(180deg, #f4f6fa 0%, #eceff4 100%);
 }
 
 .summary-card {

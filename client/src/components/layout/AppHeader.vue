@@ -11,6 +11,7 @@
       </nav>
       <div class="actions">
         <template v-if="auth.isLoggedIn">
+          <img class="user-avatar" :src="avatarUrl" :alt="`${auth.nickname}头像`" />
           <span class="user">{{ auth.nickname }}</span>
           <button class="btn btn-light" @click="logout">退出</button>
         </template>
@@ -24,11 +25,15 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../../store/modules/auth'
+import { resolveMediaUrl } from '../../utils/media'
 
 const auth = useAuthStore()
 const router = useRouter()
+const fallbackAvatar = 'https://via.placeholder.com/72x72?text=U'
+const avatarUrl = computed(() => resolveMediaUrl(auth.user?.avatarUrl) || fallbackAvatar)
 
 function logout() {
   auth.clearAuth()

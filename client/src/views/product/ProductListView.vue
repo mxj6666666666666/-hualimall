@@ -2,14 +2,7 @@
   <section class="container page">
     <div class="hero-stage">
       <p class="hero-eyebrow">Huali Signature Selection</p>
-      <h1 class="hero-title">探索高端时尚单品</h1>
-      <p class="hero-sub">在奶油色留白与暖色聚光中，探索更具质感的服饰与风格。</p>
-    </div>
-
-    <div class="card">
-      <h3>甄选筛选</h3>
-      <p class="sub">按关键词、分类与状态快速聚焦心仪单品</p>
-      <div class="toolbar">
+      <div class="toolbar hero-search-toolbar">
         <input v-model.trim="query.keyword" placeholder="搜索商品名称/描述" @keyup.enter="search" />
         <input v-model.number="query.categoryId" type="number" min="1" placeholder="分类ID（可选）" />
         <select v-model="query.status">
@@ -26,7 +19,7 @@
     <div v-else-if="products.length === 0" class="card">暂无商品</div>
     <div v-else class="grid">
       <article v-for="item in products" :key="item.id" class="card product-card">
-        <img :src="item.imageUrl || fallbackImage" :alt="item.name" />
+        <img :src="resolveMediaUrl(item.imageUrl) || fallbackImage" :alt="item.name" />
         <h3>{{ item.name }}</h3>
         <p class="sub clamp-2">{{ item.description || '暂无描述' }}</p>
         <p class="price">¥ {{ formatPrice(item.price) }}</p>
@@ -51,6 +44,7 @@ import { productApi } from '../../api/modules/product'
 import { cartApi } from '../../api/modules/cart'
 import { useAuthStore } from '../../store/modules/auth'
 import { formatPrice } from '../../utils/format'
+import { resolveMediaUrl } from '../../utils/media'
 
 const fallbackImage = 'https://via.placeholder.com/360x220?text=HualiMall'
 const products = ref([])
@@ -108,3 +102,13 @@ async function addToCart(productId) {
 
 onMounted(fetchProducts)
 </script>
+
+<style scoped>
+.hero-stage {
+  min-height: 24px;
+}
+
+.hero-search-toolbar {
+  margin-top: 30px;
+}
+</style>

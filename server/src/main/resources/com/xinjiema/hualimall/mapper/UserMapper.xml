@@ -5,19 +5,19 @@
 <mapper namespace="com.xinjiema.hualimall.mapper.UserMapper">
 
     <select id="selectByUsername" resultType="com.xinjiema.hualimall.pojo.User">
-        SELECT id, username, password, nickname, role, status, create_time, update_time
+        SELECT id, username, password, nickname, avatar_url, role, status, create_time, update_time
         FROM `user`
         WHERE username = #{username}
     </select>
 
     <select id="selectById" resultType="com.xinjiema.hualimall.pojo.User">
-        SELECT id, username, password, nickname, role, status, create_time, update_time
+        SELECT id, username, password, nickname, avatar_url, role, status, create_time, update_time
         FROM `user`
         WHERE id = #{id}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO `user` (username, password, nickname, role, status)
-        VALUES (#{username}, #{password}, #{nickname}, #{role}, #{status})
+        INSERT INTO `user` (username, password, nickname, avatar_url, role, status)
+        VALUES (#{username}, #{password}, #{nickname}, #{avatarUrl}, #{role}, #{status})
     </insert>
 </mapper>

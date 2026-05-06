@@ -2,7 +2,7 @@
   <section class="container page">
     <p v-if="error" class="error">{{ error }}</p>
     <article class="card detail-card" v-if="detail">
-      <img :src="detail.imageUrl || fallbackImage" :alt="detail.name" />
+      <img :src="resolveMediaUrl(detail.imageUrl) || fallbackImage" :alt="detail.name" />
       <div class="detail-panel">
         <p class="hero-eyebrow">Atelier Detail</p>
         <h1>{{ detail.name }}</h1>
@@ -28,6 +28,7 @@ import { productApi } from '../../api/modules/product'
 import { cartApi } from '../../api/modules/cart'
 import { useAuthStore } from '../../store/modules/auth'
 import { formatPrice } from '../../utils/format'
+import { resolveMediaUrl } from '../../utils/media'
 
 const route = useRoute()
 const router = useRouter()
