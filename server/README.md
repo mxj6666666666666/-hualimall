@@ -52,6 +52,7 @@
 - `POST /merchant/products` 商家新增商品（自动绑定本人）
 - `PUT /merchant/products/{id}` 商家修改商品（仅本人）
 - `DELETE /merchant/products/{id}` 商家删除商品（仅本人）
+- `POST /merchant/products/image` 商家上传商品图片（`multipart/form-data`，字段名 `file`，落盘到 `uploads/products`）
 - `GET /merchant/orders/category-stats` 商家类目销售额与订单数统计
 
 ## 鉴权说明

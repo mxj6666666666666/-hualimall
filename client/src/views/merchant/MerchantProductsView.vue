@@ -10,9 +10,17 @@
       <input v-model.number="form.price" type="number" step="0.01" placeholder="价格" />
       <input v-model.number="form.stock" type="number" placeholder="库存" />
       <input v-model.trim="form.imageUrl" placeholder="图片URL" />
+      <input type="file" accept="image/*" @change="handleFileChange" />
+      <button class="btn btn-light" type="button" :disabled="uploading" @click="uploadImage">
+        {{ uploading ? '上传中...' : '上传图片到服务器' }}
+      </button>
       <textarea v-model.trim="form.description" placeholder="描述"></textarea>
       <button class="btn btn-primary" type="submit">{{ editingId ? '保存修改' : '新增商品' }}</button>
     </form>
+    <div v-if="form.imageUrl" class="card">
+      <p class="sub">图片预览</p>
+      <img :src="resolveMediaUrl(form.imageUrl)" alt="商品图片预览" style="max-width: 240px; border-radius: 8px;" />
+    </div>
 
     <div class="card table-wrap">
       <table class="table">
@@ -47,10 +55,13 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { merchantApi } from '../../api/modules/merchant'
+import { resolveMediaUrl } from '../../utils/media'
 
 const products = ref([])
 const error = ref('')
 const editingId = ref(null)
+const uploading = ref(false)
+const selectedFile = ref(null)
 const form = reactive({
   name: '',
   categoryId: null,
@@ -59,6 +70,28 @@ const form = reactive({
   imageUrl: '',
   description: '',
 })
+
+function handleFileChange(event) {
+  selectedFile.value = event.target?.files?.[0] || null
+}
+
+async function uploadImage() {
+  if (!selectedFile.value) {
+    error.value = '请先选择图片文件'
+    return
+  }
+  uploading.value = true
+  error.value = ''
+  try {
+    const uploadedUrl = await merchantApi.uploadProductImage(selectedFile.value)
+    form.imageUrl = uploadedUrl
+    selectedFile.value = null
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    uploading.value = false
+  }
+}
 
 function resetForm() {
   form.name = ''

@@ -13,6 +13,11 @@ export const merchantApi = {
   deleteProduct(id) {
     return request.delete(`/merchant/products/${id}`)
   },
+  uploadProductImage(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request.post('/merchant/products/image', formData)
+  },
   categoryStats() {
     return request.get('/merchant/orders/category-stats')
   },

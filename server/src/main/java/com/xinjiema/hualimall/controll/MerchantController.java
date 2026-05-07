@@ -7,9 +7,19 @@ import com.xinjiema.hualimall.mapper.ProductMapper;
 import com.xinjiema.hualimall.pojo.*;
 import com.xinjiema.hualimall.utils.AuthContext;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -78,5 +88,46 @@ public class MerchantController {
         Long merchantId = AuthContext.requireCurrentUserId();
         List<MerchantCategoryStats> stats = orderMapper.selectMerchantCategoryStats(merchantId);
         return Result.success(stats);
+    }
+
+    @PostMapping(value = "/products/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Result<String> uploadProductImage(@RequestParam("file") MultipartFile file) {
+        Long merchantId = AuthContext.requireCurrentUserId();
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("请上传图片文件");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
+            throw new IllegalArgumentException("仅支持上传图片文件");
+        }
+        try {
+            Path uploadsDir = Paths.get(System.getProperty("user.dir"), "uploads", "products");
+            Files.createDirectories(uploadsDir);
+            String extension = extractExtension(file.getOriginalFilename());
+            String filename = "m" + merchantId + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().replace("-", "") + extension;
+            Path targetPath = uploadsDir.resolve(filename).normalize();
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return Result.success("/uploads/products/" + filename);
+        } catch (IOException e) {
+            log.error("商家上传商品图片失败，merchantId: {}", merchantId, e);
+            throw new RuntimeException("图片上传失败");
+        }
+    }
+
+    private String extractExtension(String originalFilename) {
+        if (originalFilename == null) {
+            return ".jpg";
+        }
+        int index = originalFilename.lastIndexOf('.');
+        if (index < 0 || index == originalFilename.length() - 1) {
+            return ".jpg";
+        }
+        String extension = originalFilename.substring(index).toLowerCase(Locale.ROOT);
+        if (extension.length() > 10) {
+            return ".jpg";
+        }
+        return extension;
     }
 }
