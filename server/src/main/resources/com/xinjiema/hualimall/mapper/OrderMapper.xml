@@ -25,9 +25,35 @@
         ORDER BY create_time DESC
     </select>
 
+    <select id="selectOrderPageByUserId" resultType="com.xinjiema.hualimall.pojo.Order">
+        SELECT *
+        FROM orders
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectOrderPageByMerchantId" resultType="com.xinjiema.hualimall.pojo.Order">
+        SELECT DISTINCT o.*
+        FROM orders o
+                 INNER JOIN order_item oi ON oi.order_id = o.id
+                 INNER JOIN product p ON p.id = oi.product_id
+        WHERE p.merchant_id = #{merchantId}
+        ORDER BY o.create_time DESC
+    </select>
+
     <!-- 根据订单id查询单个订单的主表信息 -->
     <select id="selectById" resultType="com.xinjiema.hualimall.pojo.Order">
         SELECT * FROM orders WHERE id = #{id}
+    </select>
+
+    <select id="selectByIdByMerchantId" resultType="com.xinjiema.hualimall.pojo.Order">
+        SELECT o.*
+        FROM orders o
+                 INNER JOIN order_item oi ON oi.order_id = o.id
+                 INNER JOIN product p ON p.id = oi.product_id
+        WHERE o.id = #{id}
+          AND p.merchant_id = #{merchantId}
+        LIMIT 1
     </select>
 
     <!-- 根据订单id查询该订单包含的所有商品明细 -->
@@ -39,5 +65,17 @@
     <update id="updateOrderStatus">
         UPDATE orders SET status = #{status} WHERE id = #{id}
     </update>
+
+    <select id="selectMerchantCategoryStats" resultType="com.xinjiema.hualimall.pojo.MerchantCategoryStats">
+        SELECT p.category_id                                        AS categoryId,
+               COALESCE(SUM(CASE WHEN o.status IN (1, 3) THEN oi.total_price ELSE 0 END), 0) AS salesAmount,
+               COUNT(DISTINCT o.id)                                 AS orderCount
+        FROM product p
+                 LEFT JOIN order_item oi ON oi.product_id = p.id
+                 LEFT JOIN orders o ON o.id = oi.order_id
+        WHERE p.merchant_id = #{merchantId}
+        GROUP BY p.category_id
+        ORDER BY p.category_id ASC
+    </select>
 
 </mapper>

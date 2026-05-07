@@ -13,6 +13,7 @@
 2. 执行 `docs/schema.sql` 与 `docs/data.sql`。
 3. 修改 `src/main/resources/application.yml` 中数据库连接配置。
 4. 运行 `HualimalllApplication`。
+5. 若旧库缺少新表/字段，服务启动时会自动补齐：`buyer_profile`、`merchant_profile`、`product.merchant_id`。
 
 ## RESTful 接口（核心）
 
@@ -46,10 +47,19 @@
 - `DELETE /admin/products/batch`
 - `PUT /admin/orders/{id}/status`（兼容：`/admin/order/{id}/status/update`）
 
+### 商家端
+- `GET /merchant/products` 商家商品列表（仅本人）
+- `POST /merchant/products` 商家新增商品（自动绑定本人）
+- `PUT /merchant/products/{id}` 商家修改商品（仅本人）
+- `DELETE /merchant/products/{id}` 商家删除商品（仅本人）
+- `GET /merchant/orders/category-stats` 商家类目销售额与订单数统计
+
 ## 鉴权说明
 - 登录成功后返回 token。
 - 调用受保护接口时，Header 需携带：
   - `Authorization: Bearer <token>`
+- 角色模型：`BUYER`（买家）/ `MERCHANT`（商家）/ `ADMIN`（平台管理员）
+- 注册仅允许买家与商家，管理员账号不支持自助注册
 
 ## 统一返回格式
 所有接口通过 `Result<T>` 返回：

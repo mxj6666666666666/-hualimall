@@ -20,4 +20,29 @@
         INSERT INTO `user` (username, password, nickname, avatar_url, role, status)
         VALUES (#{username}, #{password}, #{nickname}, #{avatarUrl}, #{role}, #{status})
     </insert>
+
+    <insert id="insertBuyerProfile">
+        INSERT INTO buyer_profile (user_id, real_name, phone)
+        VALUES (#{userId}, #{realName}, #{phone})
+    </insert>
+
+    <insert id="insertMerchantProfile">
+        INSERT INTO merchant_profile (user_id, shop_name, business_license_no, contact_name, contact_phone)
+        VALUES (#{userId}, #{shopName}, #{businessLicenseNo}, #{contactName}, #{contactPhone})
+    </insert>
+
+    <select id="selectBuyerProfileByUserId" resultType="com.xinjiema.hualimall.pojo.User">
+        SELECT real_name AS realName, phone
+        FROM buyer_profile
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectMerchantProfileByUserId" resultType="com.xinjiema.hualimall.pojo.User">
+        SELECT shop_name AS shopName,
+               business_license_no AS businessLicenseNo,
+               contact_name AS contactName,
+               contact_phone AS contactPhone
+        FROM merchant_profile
+        WHERE user_id = #{userId}
+    </select>
 </mapper>

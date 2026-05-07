@@ -36,6 +36,10 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             throw new IllegalArgumentException("创建订单失败，请求体不能为空");
         }
+        String role = AuthContext.requireCurrentUserRole();
+        if (!"BUYER".equals(role)) {
+            throw new SecurityException("仅买家可创建订单");
+        }
         if (order.getUserId() == null) {
             Long currentUserId = AuthContext.getCurrentUserId();
             if (currentUserId != null) {
@@ -112,8 +116,17 @@ public class OrderServiceImpl implements OrderService {
         if (ordQueryParams.getPageSize() == null || ordQueryParams.getPageSize() < 1) {
             throw new IllegalArgumentException("pageSize 必须大于等于 1");
         }
+        String role = AuthContext.requireCurrentUserRole();
+        Long currentUserId = AuthContext.requireCurrentUserId();
         PageHelper.startPage(ordQueryParams.getPage(), ordQueryParams.getPageSize());
-        List<Order> list = orderMapper.selectOrderPage(ordQueryParams);
+        List<Order> list;
+        if ("ADMIN".equals(role)) {
+            list = orderMapper.selectOrderPage(ordQueryParams);
+        } else if ("MERCHANT".equals(role)) {
+            list = orderMapper.selectOrderPageByMerchantId(currentUserId);
+        } else {
+            list = orderMapper.selectOrderPageByUserId(currentUserId);
+        }
         Page<Order> orderPage = (Page<Order>) list;
         
         // 遍历订单列表，为每个订单查询并设置对应的商品明细
@@ -130,7 +143,19 @@ public class OrderServiceImpl implements OrderService {
         if (id == null || id < 1) {
             throw new IllegalArgumentException("订单ID非法");
         }
-        Order order = orderMapper.selectById(id);
+        String role = AuthContext.requireCurrentUserRole();
+        Long currentUserId = AuthContext.requireCurrentUserId();
+        Order order;
+        if ("ADMIN".equals(role)) {
+            order = orderMapper.selectById(id);
+        } else if ("MERCHANT".equals(role)) {
+            order = orderMapper.selectByIdByMerchantId(id, currentUserId);
+        } else {
+            order = orderMapper.selectById(id);
+            if (order != null && !currentUserId.equals(order.getUserId())) {
+                throw new SecurityException("无权查看该订单");
+            }
+        }
         if (order != null) {
             List<OrderItem> items = orderMapper.selectItemsByOrderId(id);
             order.setItems(items);
@@ -143,11 +168,19 @@ public class OrderServiceImpl implements OrderService {
         if (id == null || id < 1) {
             throw new IllegalArgumentException("订单ID非法");
         }
+        String role = AuthContext.requireCurrentUserRole();
+        if (!"BUYER".equals(role)) {
+            throw new SecurityException("仅买家可取消订单");
+        }
+        Long currentUserId = AuthContext.requireCurrentUserId();
         // 更新订单状态为 取消 (2)
         Order order = orderMapper.selectById(id);
 
         if (order == null){
             throw new IllegalArgumentException("订单不存在");
+        }
+        if (!currentUserId.equals(order.getUserId())) {
+            throw new SecurityException("无权取消该订单");
         }
         if(order.getStatus() != 0){
             throw new IllegalArgumentException("只能取消未支付订单");

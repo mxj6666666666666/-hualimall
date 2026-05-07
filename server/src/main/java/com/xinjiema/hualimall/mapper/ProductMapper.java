@@ -17,6 +17,10 @@ public interface ProductMapper {
      * @param proQueryParams 包含 offset, limit, categoryId, status, keyword 等参数
      */
     List<Product> selectProductPage(ProQueryParams proQueryParams);
+    List<Product> selectProductPageByMerchant(@Param("merchantId") Long merchantId,
+                                              @Param("categoryId") Long categoryId,
+                                              @Param("status") Integer status,
+                                              @Param("keyword") String keyword);
 
 
     void insertProduct(Product product);
@@ -32,6 +36,10 @@ public interface ProductMapper {
     void insertBatch(@Param("products") List<Product> products);
 
     int decreaseStock(@Param("id") Long id, @Param("quantity") Integer quantity);
+
+    int updateProductByMerchant(@Param("product") Product product, @Param("merchantId") Long merchantId);
+
+    int deleteProductByMerchant(@Param("id") Long id, @Param("merchantId") Long merchantId);
 
 
 //    /**

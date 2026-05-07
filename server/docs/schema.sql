@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS product
     id          BIGINT PRIMARY KEY AUTO_INCREMENT,
     name        VARCHAR(200)   NOT NULL,
     category_id BIGINT         NULL,
+    merchant_id BIGINT         NULL,
     price       DECIMAL(10, 2) NOT NULL,
     stock       INT            NOT NULL DEFAULT 0,
     image_url   VARCHAR(500)   NULL,
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `user`
     password    VARCHAR(200) NOT NULL,
     nickname    VARCHAR(100) NULL,
     avatar_url  VARCHAR(500) NULL,
-    role        VARCHAR(20)  NOT NULL DEFAULT 'USER',
+    role        VARCHAR(20)  NOT NULL DEFAULT 'BUYER',
     status      INT          NOT NULL DEFAULT 1,
     create_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -50,6 +51,32 @@ CREATE TABLE IF NOT EXISTS `user`
 
 ALTER TABLE `user`
     ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500) NULL AFTER nickname;
+
+ALTER TABLE product
+    ADD COLUMN IF NOT EXISTS merchant_id BIGINT NULL AFTER category_id;
+
+CREATE TABLE IF NOT EXISTS buyer_profile
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id     BIGINT       NOT NULL UNIQUE,
+    real_name   VARCHAR(100) NOT NULL,
+    phone       VARCHAR(20)  NOT NULL,
+    create_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS merchant_profile
+(
+    id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id             BIGINT       NOT NULL UNIQUE,
+    shop_name           VARCHAR(200) NOT NULL,
+    business_license_no VARCHAR(100) NOT NULL,
+    contact_name        VARCHAR(100) NOT NULL,
+    contact_phone       VARCHAR(20)  NOT NULL,
+    create_time         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 
 CREATE TABLE IF NOT EXISTS cart
 (

@@ -4,25 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    private Long id;
+public class RegisterRequest {
     private String username;
     private String password;
     private String nickname;
     private String avatarUrl;
     private String role;
-    private Integer status;
+
     private String realName;
     private String phone;
+
     private String shopName;
     private String businessLicenseNo;
     private String contactName;
     private String contactPhone;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
 }

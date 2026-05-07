@@ -12,6 +12,8 @@ const routes = [
   { path: '/orders/:id', component: () => import('../views/order/OrderDetailView.vue'), meta: { requiresAuth: true } },
   { path: '/admin/products', component: () => import('../views/admin/AdminProductsView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/orders', component: () => import('../views/admin/AdminOrdersView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/merchant/products', component: () => import('../views/merchant/MerchantProductsView.vue'), meta: { requiresAuth: true, requiresMerchant: true } },
+  { path: '/merchant/overview', component: () => import('../views/merchant/MerchantOverviewView.vue'), meta: { requiresAuth: true, requiresMerchant: true } },
   { path: '/forbidden', component: () => import('../views/error/ForbiddenView.vue') },
 ]
 
@@ -29,6 +31,9 @@ router.beforeEach((to) => {
     return `/login?redirect=${encodeURIComponent(to.fullPath)}`
   }
   if (to.meta.requiresAdmin && authStore.role !== 'ADMIN') {
+    return '/forbidden'
+  }
+  if (to.meta.requiresMerchant && authStore.role !== 'MERCHANT') {
     return '/forbidden'
   }
   return true

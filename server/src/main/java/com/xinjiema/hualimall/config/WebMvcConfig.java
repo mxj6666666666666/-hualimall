@@ -24,6 +24,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/carts/**",
                         "/cart/**",
                         "/admin/**",
+                        "/merchant/**",
                         "/users/me",
                         "/users/info",
                         "/user/me",

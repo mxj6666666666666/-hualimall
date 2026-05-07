@@ -1,5 +1,6 @@
 INSERT INTO `user` (username, password, nickname, avatar_url, role, status)
-VALUES ('user', '123456', '普通用户', '/uploads/avatars/user.jpg', 'USER', 1),
+VALUES ('buyer', '123456', '普通买家', '/uploads/avatars/user.jpg', 'BUYER', 1),
+       ('merchant', '123456', '示例商家', '/uploads/avatars/user.jpg', 'MERCHANT', 1),
        ('admin', '123456', '管理员', '/uploads/avatars/admin.jpg', 'ADMIN', 1)
 ON DUPLICATE KEY UPDATE
     username = VALUES(username),
@@ -20,6 +21,26 @@ VALUES ('华为 Mate60 Pro', 1, 6999.00, 120, '/uploads/products/mate60pro.jpg',
        ('iPad Pro 11', 4, 6799.00, 60, '/uploads/products/ipadpro11.jpg', '高性能平板电脑', 1),
        ('机械键盘 K8 Pro', 5, 599.00, 300, '/uploads/products/k8pro.jpg', '无线机械键盘', 1)
 ON DUPLICATE KEY UPDATE name = VALUES(name);
+
+UPDATE product
+SET merchant_id = (SELECT id FROM `user` WHERE username = 'merchant' LIMIT 1)
+WHERE merchant_id IS NULL;
+
+INSERT INTO buyer_profile (user_id, real_name, phone)
+SELECT id, '示例买家', '13800000000'
+FROM `user`
+WHERE username = 'buyer'
+ON DUPLICATE KEY UPDATE real_name = VALUES(real_name),
+                        phone = VALUES(phone);
+
+INSERT INTO merchant_profile (user_id, shop_name, business_license_no, contact_name, contact_phone)
+SELECT id, '示例商家旗舰店', 'BIZ-20260001', '商家联系人', '13900000000'
+FROM `user`
+WHERE username = 'merchant'
+ON DUPLICATE KEY UPDATE shop_name = VALUES(shop_name),
+                        business_license_no = VALUES(business_license_no),
+                        contact_name = VALUES(contact_name),
+                        contact_phone = VALUES(contact_phone);
 
 UPDATE product
 SET image_url = CASE id

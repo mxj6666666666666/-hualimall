@@ -41,6 +41,9 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (isAdminPath(requestUri) && !"ADMIN".equals(claims.role())) {
             throw new SecurityException("无管理员权限");
         }
+        if (isMerchantPath(requestUri) && !"MERCHANT".equals(claims.role())) {
+            throw new SecurityException("无商家权限");
+        }
 
         AuthContext.setCurrentUser(claims.userId(), claims.username(), claims.role());
         return true;
@@ -57,5 +60,13 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
         String normalizedPath = requestUri.toLowerCase(Locale.ROOT);
         return normalizedPath.equals("/admin") || normalizedPath.startsWith("/admin/");
+    }
+
+    private boolean isMerchantPath(String requestUri) {
+        if (requestUri == null) {
+            return false;
+        }
+        String normalizedPath = requestUri.toLowerCase(Locale.ROOT);
+        return normalizedPath.equals("/merchant") || normalizedPath.startsWith("/merchant/");
     }
 }

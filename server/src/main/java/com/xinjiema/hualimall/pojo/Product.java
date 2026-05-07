@@ -20,6 +20,7 @@ public class Product {
     private String imageUrl;
     private String description;
     private Integer status;
+    private Long merchantId;
 
     //数据库自动设置
     private LocalDateTime createTime;

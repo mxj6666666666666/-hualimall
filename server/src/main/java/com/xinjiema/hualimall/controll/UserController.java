@@ -2,6 +2,7 @@ package com.xinjiema.hualimall.controll;
 
 import com.xinjiema.hualimall.pojo.LoginRequest;
 import com.xinjiema.hualimall.pojo.LoginResponse;
+import com.xinjiema.hualimall.pojo.RegisterRequest;
 import com.xinjiema.hualimall.pojo.Result;
 import com.xinjiema.hualimall.pojo.User;
 import com.xinjiema.hualimall.service.UserService;
@@ -19,9 +20,9 @@ public class UserController {
     private UserService userService;
 
     @PostMapping({"", "/register"})
-    public Result<String> register(@RequestBody User user) {
-        log.info("用户注册，用户名：{}", user == null ? null : user.getUsername());
-        userService.register(user);
+    public Result<String> register(@RequestBody RegisterRequest registerRequest) {
+        log.info("用户注册，用户名：{}，角色：{}", registerRequest == null ? null : registerRequest.getUsername(), registerRequest == null ? null : registerRequest.getRole());
+        userService.register(registerRequest);
         return Result.success("注册成功");
     }
 

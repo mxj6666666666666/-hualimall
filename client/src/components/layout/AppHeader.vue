@@ -4,8 +4,10 @@
       <RouterLink class="brand" to="/products">HualiMall</RouterLink>
       <nav class="nav">
         <RouterLink to="/products">商品</RouterLink>
-        <RouterLink to="/cart">购物车</RouterLink>
-        <RouterLink to="/orders">订单</RouterLink>
+        <RouterLink v-if="auth.role === 'BUYER'" to="/cart">购物车</RouterLink>
+        <RouterLink v-if="auth.role === 'BUYER'" to="/orders">订单</RouterLink>
+        <RouterLink v-if="auth.role === 'MERCHANT'" to="/merchant/products">我的商品</RouterLink>
+        <RouterLink v-if="auth.role === 'MERCHANT'" to="/merchant/overview">销售看板</RouterLink>
         <RouterLink v-if="auth.role === 'ADMIN'" to="/admin/products">管理端</RouterLink>
         <RouterLink v-if="auth.role === 'ADMIN'" to="/admin/orders">订单管理</RouterLink>
       </nav>
