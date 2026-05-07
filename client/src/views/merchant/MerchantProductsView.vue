@@ -124,12 +124,40 @@ function editProduct(item) {
 }
 
 async function saveProduct() {
+  if (!form.name || form.name.trim() === '') {
+    error.value = '商品名称不能为空'
+    return
+  }
+  if (form.price === null || form.price === '' || Number.isNaN(Number(form.price))) {
+    error.value = '商品价格不能为空'
+    return
+  }
+  if (Number(form.price) < 0) {
+    error.value = '商品价格不能小于0'
+    return
+  }
+  if (form.stock === null || form.stock === '' || Number.isNaN(Number(form.stock))) {
+    error.value = '商品库存不能为空'
+    return
+  }
+  if (Number(form.stock) < 0) {
+    error.value = '商品库存不能小于0'
+    return
+  }
   error.value = ''
   try {
+    const payload = {
+      name: form.name,
+      categoryId: form.categoryId,
+      price: Number(form.price),
+      stock: Number(form.stock),
+      imageUrl: form.imageUrl || null,
+      description: form.description || null,
+    }
     if (editingId.value) {
-      await merchantApi.updateProduct(editingId.value, form)
+      await merchantApi.updateProduct(editingId.value, payload)
     } else {
-      await merchantApi.addProduct(form)
+      await merchantApi.addProduct(payload)
     }
     resetForm()
     await fetchProducts()

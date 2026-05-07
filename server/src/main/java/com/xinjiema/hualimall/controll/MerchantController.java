@@ -6,6 +6,7 @@ import com.xinjiema.hualimall.mapper.OrderMapper;
 import com.xinjiema.hualimall.mapper.ProductMapper;
 import com.xinjiema.hualimall.pojo.*;
 import com.xinjiema.hualimall.utils.AuthContext;
+import com.xinjiema.hualimall.utils.UuidV7Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -56,14 +56,16 @@ public class MerchantController {
 
     @PostMapping("/products")
     public Result<String> addProduct(@RequestBody Product product) {
+        validateProductForCreate(product);
         Long merchantId = AuthContext.requireCurrentUserId();
         product.setMerchantId(merchantId);
         productMapper.insertProduct(product);
         return Result.success("商家商品新增成功");
     }
 
-    @PutMapping("/products/{id}")
+    @PutMapping("/products/{id:\\d+}")
     public Result<String> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        validateProductForUpdate(product);
         Long merchantId = AuthContext.requireCurrentUserId();
         product.setId(id);
         int affectedRows = productMapper.updateProductByMerchant(product, merchantId);
@@ -73,7 +75,7 @@ public class MerchantController {
         return Result.success("商家商品修改成功");
     }
 
-    @DeleteMapping("/products/{id}")
+    @DeleteMapping("/products/{id:\\d+}")
     public Result<String> deleteProduct(@PathVariable Long id) {
         Long merchantId = AuthContext.requireCurrentUserId();
         int affectedRows = productMapper.deleteProductByMerchant(id, merchantId);
@@ -90,7 +92,7 @@ public class MerchantController {
         return Result.success(stats);
     }
 
-    @PostMapping(value = "/products/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = {"/products/image", "/products/upload"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<String> uploadProductImage(@RequestParam("file") MultipartFile file) {
         Long merchantId = AuthContext.requireCurrentUserId();
         if (file == null || file.isEmpty()) {
@@ -101,15 +103,16 @@ public class MerchantController {
             throw new IllegalArgumentException("仅支持上传图片文件");
         }
         try {
-            Path uploadsDir = Paths.get(System.getProperty("user.dir"), "uploads", "products");
+            Path uploadsDir = Paths.get(System.getProperty("user.dir"), "uploads", "products", String.valueOf(merchantId));
             Files.createDirectories(uploadsDir);
             String extension = extractExtension(file.getOriginalFilename());
-            String filename = "m" + merchantId + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().replace("-", "") + extension;
+            String baseName = normalizeBaseName(file.getOriginalFilename());
+            String filename = baseName + "_" + UuidV7Utils.generate() + extension;
             Path targetPath = uploadsDir.resolve(filename).normalize();
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            return Result.success("/uploads/products/" + filename);
+            return Result.success("/uploads/products/" + merchantId + "/" + filename);
         } catch (IOException e) {
             log.error("商家上传商品图片失败，merchantId: {}", merchantId, e);
             throw new RuntimeException("图片上传失败");
@@ -129,5 +132,52 @@ public class MerchantController {
             return ".jpg";
         }
         return extension;
+    }
+
+    private String normalizeBaseName(String originalFilename) {
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            return "image";
+        }
+        String trimmed = originalFilename.trim();
+        int index = trimmed.lastIndexOf('.');
+        String base = index > 0 ? trimmed.substring(0, index) : trimmed;
+        String normalized = base.replaceAll("[^a-zA-Z0-9_-]", "_");
+        if (normalized.isEmpty()) {
+            return "image";
+        }
+        return normalized.length() > 60 ? normalized.substring(0, 60) : normalized;
+    }
+
+    private void validateProductForCreate(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("商品参数不能为空");
+        }
+        if (product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("商品名称不能为空");
+        }
+        if (product.getPrice() == null) {
+            throw new IllegalArgumentException("商品价格不能为空");
+        }
+        if (product.getPrice().signum() < 0) {
+            throw new IllegalArgumentException("商品价格不能小于0");
+        }
+        if (product.getStock() == null) {
+            throw new IllegalArgumentException("商品库存不能为空");
+        }
+        if (product.getStock() < 0) {
+            throw new IllegalArgumentException("商品库存不能小于0");
+        }
+    }
+
+    private void validateProductForUpdate(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("商品参数不能为空");
+        }
+        if (product.getPrice() != null && product.getPrice().signum() < 0) {
+            throw new IllegalArgumentException("商品价格不能小于0");
+        }
+        if (product.getStock() != null && product.getStock() < 0) {
+            throw new IllegalArgumentException("商品库存不能小于0");
+        }
     }
 }
