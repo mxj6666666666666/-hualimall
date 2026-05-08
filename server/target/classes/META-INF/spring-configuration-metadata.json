@@ -1,0 +1,70 @@
+{
+  "groups": [
+    {
+      "name": "alipay",
+      "type": "com.xinjiema.hualimall.config.AlipayConfig",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "jwt",
+      "type": "com.xinjiema.hualimall.config.JwtProperties",
+      "sourceType": "com.xinjiema.hualimall.config.JwtProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "alipay.alipay-public-key",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.app-id",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.app-private-key",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.charset",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.format",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.gateway-url",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.notify-url",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.return-url",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "alipay.sign-type",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.AlipayConfig"
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.xinjiema.hualimall.config.JwtProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}
