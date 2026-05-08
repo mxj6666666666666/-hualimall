@@ -108,7 +108,7 @@ async function submitOrder() {
   error.value = ''
   try {
     const order = await orderApi.create({})
-    router.push(`/orders/${order.id}`)
+    router.push(`/orders/${order.id}/pay`)
   } catch (e) {
     error.value = e.message
   } finally {

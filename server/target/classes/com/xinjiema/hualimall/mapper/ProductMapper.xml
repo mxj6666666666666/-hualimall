@@ -122,12 +122,21 @@
         </foreach>
     </delete>
 
+    <!-- 库存减掉买的数量 -->
     <update id="decreaseStock">
         UPDATE product
         SET stock = stock - #{quantity}
         WHERE id = #{id}
           AND stock <![CDATA[>=]]> #{quantity}
     </update>
+
+    <!-- 库存增加买的数量 -->
+    <update id="increaseStock">
+        UPDATE product
+        SET stock = stock + #{quantity}
+        WHERE id = #{id}
+    </update>
+
 
     <select id="selectProductPageByMerchant" resultType="com.xinjiema.hualimall.pojo.Product">
         SELECT *

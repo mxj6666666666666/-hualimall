@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/alipay")
+@RequestMapping("/payments")
 public class AlipayController {
 
     @Autowired
@@ -28,7 +28,7 @@ public class AlipayController {
     // private OrderMapper orderMapper;
 
     // ============ 1. 发起支付接口 ============
-    @GetMapping("/pay")
+    @PostMapping("/pay")
     public void pay(AliPayOrder aliPayOrder, HttpServletResponse httpResponse) throws Exception {
 
         // ① 创建支付宝客户端

@@ -187,6 +187,10 @@ public class OrderServiceImpl implements OrderService {
         }
 
         orderMapper.updateOrderStatus(id, 2);
+        for (OrderItem itemId : orderMapper.selectItemsByOrderId(order.getId())) {
+            Product product = productMapper.selectById(itemId.getProductId());
+            productMapper.increaseStock(product.getId(), itemId.getQuantity());
+        }
     }
 
     @Override

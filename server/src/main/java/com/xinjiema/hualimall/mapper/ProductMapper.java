@@ -37,6 +37,8 @@ public interface ProductMapper {
 
     int decreaseStock(@Param("id") Long id, @Param("quantity") Integer quantity);
 
+    int increaseStock(@Param("id") Long id, @Param("quantity") Integer quantity);
+
     int updateProductByMerchant(@Param("product") Product product, @Param("merchantId") Long merchantId);
 
     int deleteProductByMerchant(@Param("id") Long id, @Param("merchantId") Long merchantId);

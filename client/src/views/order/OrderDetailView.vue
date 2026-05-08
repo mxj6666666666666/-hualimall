@@ -7,6 +7,9 @@
       <p class="sub">订单号：{{ detail.orderNo }}</p>
       <p class="sub">金额：¥ {{ formatPrice(detail.totalAmount) }}</p>
       <p class="sub">状态：{{ formatOrderStatus(detail.status) }}</p>
+      <div class="row-actions" v-if="detail.status === 0">
+        <RouterLink class="btn btn-primary" :to="`/orders/${detail.id}/pay`">去支付</RouterLink>
+      </div>
       <div class="table-wrap">
         <table class="table">
           <thead>
@@ -33,7 +36,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { orderApi } from '../../api/modules/order'
 import { formatOrderStatus, formatPrice } from '../../utils/format'
 
@@ -49,3 +52,9 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.row-actions {
+  margin: 12px 0;
+}
+</style>
