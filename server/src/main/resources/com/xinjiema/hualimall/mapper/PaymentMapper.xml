@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xinjiema.hualimall.mapper.PaymentMapper">
+
+    <resultMap id="PaymentResultMap" type="com.xinjiema.hualimall.pojo.Payment">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="paymentNo" column="payment_no" jdbcType="VARCHAR"/>
+        <result property="orderId" column="order_id" jdbcType="BIGINT"/>
+        <result property="channel" column="channel" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="amount" column="amount" jdbcType="DECIMAL"/>
+        <result property="payUrl" column="pay_url" jdbcType="VARCHAR"/>
+        <result property="codeUrl" column="code_url" jdbcType="VARCHAR"/>
+        <result property="channelTradeNo" column="channel_trade_no" jdbcType="VARCHAR"/>
+        <result property="expireTime" column="expire_time" jdbcType="TIMESTAMP"/>
+        <result property="paidTime" column="paid_time" jdbcType="TIMESTAMP"/>
+        <result property="closeTime" column="close_time" jdbcType="TIMESTAMP"/>
+        <result property="failReason" column="fail_reason" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.xinjiema.hualimall.pojo.Payment"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO payment (
+            payment_no, order_id, channel, status, amount,
+            pay_url, code_url, channel_trade_no,
+            expire_time, paid_time, close_time, fail_reason,
+            create_time, update_time
+        ) VALUES (
+                     #{paymentNo}, #{orderId}, #{channel}, #{status}, #{amount},
+                     #{payUrl}, #{codeUrl}, #{channelTradeNo},
+                     #{expireTime}, #{paidTime}, #{closeTime}, #{failReason},
+                     #{createTime}, #{updateTime}
+                 )
+    </insert>
+
+    <select id="selectById" resultMap="PaymentResultMap">
+        SELECT * FROM payment WHERE id = #{id}
+    </select>
+
+    <select id="selectByPaymentNo" resultMap="PaymentResultMap">
+        SELECT * FROM payment WHERE payment_no = #{paymentNo}
+    </select>
+
+    <select id="selectLatestByOrderId" resultMap="PaymentResultMap">
+        SELECT * FROM payment
+        WHERE order_id = #{orderId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectActiveByOrderId" resultMap="PaymentResultMap">
+        SELECT * FROM payment
+        WHERE order_id = #{orderId}
+          AND status IN ('PENDING', 'PROCESSING')
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <update id="updateStatusToClosed">
+        UPDATE payment
+        SET status = 'CLOSED',
+            close_time = #{closeTime},
+            update_time = #{closeTime}
+        WHERE id = #{id}
+          AND status IN ('PENDING', 'PROCESSING')
+    </update>
+
+    <update id="updateStatusToSuccess">
+        UPDATE payment
+        SET status = 'SUCCESS',
+            channel_trade_no = #{channelTradeNo},
+            paid_time = #{paidTime},
+            update_time = #{paidTime}
+        WHERE id = #{id}
+          AND status IN ('PENDING', 'PROCESSING')
+    </update>
+
+    <update id="updateStatusToFailed">
+        UPDATE payment
+        SET status = 'FAILED',
+            fail_reason = #{failReason},
+            update_time = NOW()
+        WHERE id = #{id}
+          AND status IN ('PENDING', 'PROCESSING')
+    </update>
+
+    <select id="selectTimeoutPending" resultMap="PaymentResultMap">
+        SELECT * FROM payment
+        WHERE status = 'PENDING'
+          AND expire_time &lt; #{now}
+    </select>
+</mapper>

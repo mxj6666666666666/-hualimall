@@ -77,5 +77,8 @@
         GROUP BY p.category_id
         ORDER BY p.category_id ASC
     </select>
+    <select id="selectOrderPageByOrderNo" resultType="com.xinjiema.hualimall.pojo.Order">
+        SELECT * FROM orders WHERE order_no = #{orderNo}
+    </select>
 
 </mapper>

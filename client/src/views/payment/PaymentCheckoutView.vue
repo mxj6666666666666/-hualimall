@@ -148,15 +148,37 @@ function startPolling() {
 }
 
 async function createPayment() {
+  let cashierWindow = null
+  if (channel.value === 'ALIPAY') {
+    cashierWindow = window.open('', '_blank')
+    if (!cashierWindow) {
+      error.value = '浏览器拦截了收银台弹窗，请允许弹窗后重试'
+      return
+    }
+  }
   creating.value = true
   error.value = ''
   try {
-    payment.value = await paymentApi.create({
+    const result = await paymentApi.create({
       orderId: Number(route.params.id),
       channel: channel.value,
     })
+    if (result?.html) {
+      cashierWindow.document.open()
+      cashierWindow.document.write(result.html)
+      cashierWindow.document.close()
+      await fetchPaymentByOrder()
+    } else {
+      payment.value = result
+      if (cashierWindow && !cashierWindow.closed) {
+        cashierWindow.close()
+      }
+    }
     startPolling()
   } catch (e) {
+    if (cashierWindow && !cashierWindow.closed) {
+      cashierWindow.close()
+    }
     error.value = e.message
   } finally {
     creating.value = false
