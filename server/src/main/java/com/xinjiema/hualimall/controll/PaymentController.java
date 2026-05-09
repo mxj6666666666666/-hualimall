@@ -20,10 +20,14 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
-    @PostMapping(produces = "application/json;charset=UTF-8")
-    public Result<Payment> createPayment(@RequestBody CreatePaymentRequest req, HttpServletResponse httpResponse) throws Exception {
+    @PostMapping
+    public Object createPayment(@RequestBody CreatePaymentRequest req, HttpServletResponse httpResponse) throws Exception {
         log.info("创建支付单: {}", req);
-        return Result.success(paymentService.createPayment(req,httpResponse));
+        Payment payment = paymentService.createPayment(req, httpResponse);
+        if (httpResponse.isCommitted()) {
+            return null;
+        }
+        return Result.success(payment);
     }
 
     @GetMapping("/{id}")

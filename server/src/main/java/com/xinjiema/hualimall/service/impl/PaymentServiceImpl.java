@@ -6,7 +6,6 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradePagePayRequest;
-import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.xinjiema.hualimall.config.AlipayConfig;
 import com.xinjiema.hualimall.mapper.OrderMapper;      // 假设你已有订单 Mapper
 import com.xinjiema.hualimall.mapper.PaymentMapper;
@@ -50,11 +49,22 @@ public class PaymentServiceImpl implements PaymentService {
         if (req.getOrderId() == null || req.getChannel() == null) {
             throw new IllegalArgumentException("订单ID和支付渠道不能为空");
         }
+        String channel = req.getChannel().toUpperCase();
 
         // ① 幂等：若已存在未终态的支付单，直接返回
         Payment exist = paymentMapper.selectActiveByOrderId(req.getOrderId());
         if (exist != null) {
             log.info("订单 {} 已有进行中的支付单 {}，直接返回", req.getOrderId(), exist.getPaymentNo());
+            if ("ALIPAY".equals(channel) && "ALIPAY".equals(exist.getChannel())) {
+                Order existOrder = orderMapper.selectById(req.getOrderId());
+                if (existOrder != null) {
+                    try {
+                        writeAlipayForm(existOrder, exist.getPaymentNo(), httpResponse);
+                    } catch (AlipayApiException | IOException e) {
+                        throw new RuntimeException("重新拉起支付宝支付失败，请稍后重试", e);
+                    }
+                }
+            }
             return exist;
         }
 
@@ -71,7 +81,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = new Payment();
         payment.setPaymentNo(generatePaymentNo());
         payment.setOrderId(req.getOrderId());
-        payment.setChannel(req.getChannel().toUpperCase());
+        payment.setChannel(channel);
         payment.setStatus("PENDING");
         payment.setAmount(order.getTotalAmount());          // 金额以订单为准
         OffsetDateTime now = OffsetDateTime.now();
@@ -79,53 +89,13 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setUpdateTime(now);
         payment.setExpireTime(now.plusMinutes(15));        // 15分钟过期
 
+        // ⑤ 入库
+        paymentMapper.insert(payment);
+
         // ============ TODO 重要：请替换为你的真实支付宝/微信 SDK 调用 ============
         try {
             if ("ALIPAY".equals(payment.getChannel())) {
-                // ---- 支付宝沙箱示例（电脑网站/扫码支付） ----
-                // ① 创建支付宝客户端
-                AlipayClient alipayClient = new DefaultAlipayClient(
-                        alipayConfig.getGatewayUrl(),       // 网关地址
-                        alipayConfig.getAppId(),            // APPID
-                        alipayConfig.getAppPrivateKey(),    // 应用私钥
-                        alipayConfig.getFormat(),           // 格式：JSON
-                        alipayConfig.getCharset(),          // 字符集：UTF-8
-                        alipayConfig.getAlipayPublicKey(),  // 支付宝公钥
-                        alipayConfig.getSignType()          // 签名方式：RSA2
-                );
-                 AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
-
-                // ③ 创建支付请求
-                AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-                alipayRequest.setNotifyUrl(alipayConfig.getNotifyUrl());   // 异步回调
-                alipayRequest.setReturnUrl(alipayConfig.getReturnUrl());   // 同步跳转
-
-                // ⑤ 业务参数——全部从 order 里拿
-                String subject = "花礼商城";
-                if (order.getItems() != null && !order.getItems().isEmpty()) {
-                    if (order.getItems().size() == 1) {
-                        subject = order.getItems().getFirst().getProductName();
-                    } else {
-                        subject = order.getItems().getFirst().getProductName()
-                                + " 等" + order.getItems().size() + "件商品";
-                    }
-                }
-                JSONObject bizContent = new JSONObject();
-                bizContent.put("out_trade_no", order.getOrderNo());         // 订单号
-                bizContent.put("total_amount", order.getTotalAmount().toString()); // 金额
-                bizContent.put("subject", subject); //标题
-                bizContent.put("product_code", "FAST_INSTANT_TRADE_PAY");
-                alipayRequest.setBizContent(bizContent.toString());
-
-                // ④ 执行请求，获取支付宝返回的表单HTML
-                String formHtml = alipayClient.pageExecute(request).getBody();
-                // ⑤ 将HTML表单直接输出给浏览器，浏览器会自动跳转到支付宝收银台
-                httpResponse.setContentType("text/html;charset=" + alipayConfig.getCharset());
-                httpResponse.getWriter().write(formHtml);
-                httpResponse.getWriter().flush();
-                httpResponse.getWriter().close();
-                // request.setBizContent(构建JSON，包含 out_trade_no, total_amount, subject 等);
-                // AlipayTradePrecreateResponse response = client.execute(request);
+                    writeAlipayForm(order, payment.getPaymentNo(), httpResponse);
             } else if ("WECHAT".equals(payment.getChannel())) {
                 // ---- 微信沙箱示例（扫码支付） ----
                 // 类似调用微信 SDK，生成 code_url
@@ -141,8 +111,10 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RuntimeException("创建支付订单失败，请稍后重试", e);
         }
 
-        // ⑤ 入库
-        paymentMapper.insert(payment);
+
+
+
+
         log.info("创建支付单成功: {}", payment.getPaymentNo());
         return payment;
     }
@@ -270,7 +242,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }else {
             System.out.println("验签失败！可能是伪造的回调请求");
-            return "fail";
+            return "failure";
         }
         return "success";
     }
@@ -332,5 +304,43 @@ public class PaymentServiceImpl implements PaymentService {
             // 微信关单API
             log.info("调用微信关单: {}", payment.getPaymentNo());
         }
+    }
+
+    private void writeAlipayForm(Order order, String outTradeNo, HttpServletResponse httpResponse)
+            throws AlipayApiException, IOException {
+        AlipayClient alipayClient = new DefaultAlipayClient(
+                alipayConfig.getGatewayUrl(),
+                alipayConfig.getAppId(),
+                alipayConfig.getAppPrivateKey(),
+                alipayConfig.getFormat(),
+                alipayConfig.getCharset(),
+                alipayConfig.getAlipayPublicKey(),
+                alipayConfig.getSignType()
+        );
+        AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
+        alipayRequest.setNotifyUrl(alipayConfig.getNotifyUrl());
+        alipayRequest.setReturnUrl(alipayConfig.getReturnUrl());
+
+        String subject = "花礼商城";
+        if (order.getItems() != null && !order.getItems().isEmpty()) {
+            if (order.getItems().size() == 1) {
+                subject = order.getItems().getFirst().getProductName();
+            } else {
+                subject = order.getItems().getFirst().getProductName()
+                        + " 等" + order.getItems().size() + "件商品";
+            }
+        }
+        JSONObject bizContent = new JSONObject();
+        bizContent.put("out_trade_no", outTradeNo);
+        bizContent.put("total_amount", order.getTotalAmount().toString());
+        bizContent.put("subject", subject);
+        bizContent.put("product_code", "FAST_INSTANT_TRADE_PAY");
+        alipayRequest.setBizContent(bizContent.toString());
+
+        String formHtml = alipayClient.pageExecute(alipayRequest).getBody();
+        httpResponse.setContentType("text/html;charset=" + alipayConfig.getCharset());
+        httpResponse.getWriter().write(formHtml);
+        httpResponse.getWriter().flush();
+        httpResponse.getWriter().close();
     }
 }
