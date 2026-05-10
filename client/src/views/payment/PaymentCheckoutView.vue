@@ -74,8 +74,10 @@ const refreshing = ref(false)
 const closing = ref(false)
 const error = ref('')
 const channel = ref('ALIPAY')
+const PAYING_ORDER_ID_KEY = 'hm_paying_order_id'
 
 let timer = null
+let redirectedAfterPaid = false
 
 function stopPolling() {
   if (timer) {
@@ -86,6 +88,20 @@ function stopPolling() {
 
 function shouldPollPaymentStatus(status) {
   return status === 0 || status === 1 || status === 'PENDING' || status === 'PROCESSING'
+}
+
+function isOrderPaid(status) {
+  return Number(status) === 1 || Number(status) === 3
+}
+
+function redirectToPaidOrder() {
+  if (redirectedAfterPaid) {
+    return
+  }
+  redirectedAfterPaid = true
+  stopPolling()
+  localStorage.removeItem(PAYING_ORDER_ID_KEY)
+  router.replace(`/orders/${route.params.id}?paid=1`)
 }
 
 async function fetchOrder() {
@@ -101,6 +117,10 @@ async function initPage() {
   error.value = ''
   try {
     await fetchOrder()
+    if (isOrderPaid(order.value?.status)) {
+      redirectToPaidOrder()
+      return
+    }
     try {
       await fetchPaymentByOrder()
     } catch (e) {
@@ -130,6 +150,10 @@ async function refreshPayment() {
       await fetchPaymentByOrder()
     }
     await fetchOrder()
+    if (isOrderPaid(order.value?.status)) {
+      redirectToPaidOrder()
+      return
+    }
     if (!shouldPollPaymentStatus(payment.value?.status)) {
       stopPolling()
     }
@@ -149,6 +173,7 @@ function startPolling() {
 
 async function createPayment() {
   let cashierWindow = null
+  localStorage.setItem(PAYING_ORDER_ID_KEY, String(route.params.id))
   if (channel.value === 'ALIPAY') {
     cashierWindow = window.open('', '_blank')
     if (!cashierWindow) {

@@ -2,6 +2,7 @@
   <section class="container page">
     <p v-if="error" class="error">{{ error }}</p>
     <article class="card" v-if="detail">
+      <p v-if="route.query.paid === '1'" class="success-tip">支付成功，订单状态已更新</p>
       <h1>订单详情</h1>
       <p class="sub">Order Couture Record</p>
       <p class="sub">订单号：{{ detail.orderNo }}</p>
@@ -54,6 +55,12 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.success-tip {
+  margin-bottom: 12px;
+  color: #15803d;
+  font-weight: 600;
+}
+
 .row-actions {
   margin: 12px 0;
 }

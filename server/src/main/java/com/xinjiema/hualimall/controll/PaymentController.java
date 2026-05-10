@@ -5,6 +5,7 @@ import com.xinjiema.hualimall.pojo.CreatePaymentRequest;
 import com.xinjiema.hualimall.pojo.Payment;
 import com.xinjiema.hualimall.pojo.Result;
 import com.xinjiema.hualimall.service.PaymentService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,8 @@ public class PaymentController {
 
     // 回调接口
     @PostMapping("/notify/alipay")
-    public String notifyAlipay(@RequestParam Map<String, String> params) throws AlipayApiException {
-        return paymentService.handleAlipayNotify(params);
+    public String notifyAlipay(HttpServletRequest request) throws AlipayApiException {
+        return paymentService.handleAlipayNotify(request);
     }
 
     @PostMapping("/notify/wechat")

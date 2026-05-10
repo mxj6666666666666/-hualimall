@@ -13,6 +13,7 @@ import com.xinjiema.hualimall.pojo.CreatePaymentRequest;
 import com.xinjiema.hualimall.pojo.Order;              // 假设你已有订单实体
 import com.xinjiema.hualimall.pojo.Payment;
 import com.xinjiema.hualimall.service.PaymentService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -171,15 +173,40 @@ public class PaymentServiceImpl implements PaymentService {
     // ======================== 5. 支付宝异步通知处理 ========================
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String handleAlipayNotify(Map<String, String> params) throws AlipayApiException {
+    public String handleAlipayNotify(HttpServletRequest request) throws AlipayApiException {
+
+        Map<String, String> params = new HashMap<>();
+        Map<String, String[]> requestParams = request.getParameterMap();
+        for (String name : requestParams.keySet()) {
+            String[] values = requestParams.get(name);
+            String valueStr = "";
+            for (int i = 0; i < values.length; i++) {
+                valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
+            }
+            params.put(name, valueStr);
+        }
+
         log.info("收到支付宝回调: {}", params);
+
+//        // 验签前打印调试信息
+//        log.info("=== 验签调试信息 ===");
+//        log.info("支付宝公钥: {}", alipayConfig.getAlipayPublicKey());
+//        log.info("公钥长度: {}", alipayConfig.getAlipayPublicKey().length());
+//        log.info("签名类型: {}", alipayConfig.getSignType());
+//        log.info("字符编码: {}", alipayConfig.getCharset());
+//        log.info("网关地址: {}", alipayConfig.getGatewayUrl());
+//        log.info("应用ID: {}", alipayConfig.getAppId());
+//        log.info("回调参数中的sign: {}", params.get("sign"));
+//        log.info("回调参数中的sign_type: {}", params.get("sign_type"));
+//        log.info("回调参数总数: {}", params.size());
 
         // ① 验签（必须做，否则有安全风险）
         // ============ TODO 替换为你的支付宝验签实现 ============
-        String sign = params.get("sign");
-        String content = AlipaySignature.getSignCheckContentV1(params);
-        boolean checkSignature = AlipaySignature.rsa256CheckContent(
-                content, sign, alipayConfig.getAlipayPublicKey(), alipayConfig.getCharset()
+        boolean checkSignature = AlipaySignature.rsaCheckV1(
+                params,  // 完整参数（包含sign）
+                alipayConfig.getAlipayPublicKey(),
+                alipayConfig.getCharset(),
+                alipayConfig.getSignType()
         );
 
         // ② 提取参数

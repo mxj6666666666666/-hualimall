@@ -3,6 +3,7 @@ package com.xinjiema.hualimall.service;
 import com.alipay.api.AlipayApiException;
 import com.xinjiema.hualimall.pojo.CreatePaymentRequest;
 import com.xinjiema.hualimall.pojo.Payment;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public interface PaymentService {
 
     void closePayment(Long id);
 
-    String handleAlipayNotify(Map<String, String> params) throws AlipayApiException;
+    String handleAlipayNotify(HttpServletRequest request) throws AlipayApiException;
 
     String handleWechatNotify(String body);
 
