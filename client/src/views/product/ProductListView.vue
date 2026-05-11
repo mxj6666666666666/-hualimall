@@ -34,6 +34,20 @@
       <span>第 {{ query.page }} / {{ totalPages }} 页（共 {{ total }} 条）</span>
       <button class="btn btn-light" :disabled="query.page >= totalPages || loading" @click="changePage(query.page + 1)">下一页</button>
     </div>
+    <div class="pager-controls">
+      <label>
+        跳转到
+        <input v-model.number="jumpPage" type="number" min="1" :max="totalPages" @keyup.enter="goToInputPage" />
+        页
+      </label>
+      <button class="btn btn-light" :disabled="loading" @click="goToInputPage">跳转</button>
+      <label>
+        每页显示
+        <select v-model.number="query.pageSize" :disabled="loading" @change="changePageSize">
+          <option v-for="size in pageSizeOptions" :key="size" :value="size">{{ size }} 条</option>
+        </select>
+      </label>
+    </div>
   </section>
 </template>
 
@@ -45,6 +59,7 @@ import { cartApi } from '../../api/modules/cart'
 import { useAuthStore } from '../../store/modules/auth'
 import { formatPrice } from '../../utils/format'
 import { resolveMediaUrl } from '../../utils/media'
+import { useToast } from '../../composables/useToast'
 
 const fallbackImage = 'https://via.placeholder.com/360x220?text=HualiMall'
 const products = ref([])
@@ -53,8 +68,16 @@ const loading = ref(false)
 const error = ref('')
 const router = useRouter()
 const authStore = useAuthStore()
+const { showToast } = useToast()
 const query = reactive({ page: 1, pageSize: 12, keyword: '', categoryId: '', status: '' })
+const jumpPage = ref(1)
+const pageSizeOptions = [8, 12, 24, 36, 48]
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / query.pageSize)))
+
+function normalizePage(page) {
+  const target = Number(page) || 1
+  return Math.min(totalPages.value, Math.max(1, target))
+}
 
 async function fetchProducts() {
   loading.value = true
@@ -70,6 +93,12 @@ async function fetchProducts() {
     const data = await productApi.list(params)
     products.value = data?.rows || []
     total.value = Number(data?.total || 0)
+    if (query.page > totalPages.value) {
+      query.page = totalPages.value
+      jumpPage.value = query.page
+      await fetchProducts()
+      return
+    }
   } catch (e) {
     error.value = e.message
   } finally {
@@ -79,11 +108,23 @@ async function fetchProducts() {
 
 function search() {
   query.page = 1
+  jumpPage.value = 1
   fetchProducts()
 }
 
 function changePage(page) {
-  query.page = page
+  query.page = normalizePage(page)
+  jumpPage.value = query.page
+  fetchProducts()
+}
+
+function goToInputPage() {
+  changePage(jumpPage.value)
+}
+
+function changePageSize() {
+  query.page = 1
+  jumpPage.value = 1
   fetchProducts()
 }
 
@@ -95,6 +136,7 @@ async function addToCart(productId) {
   try {
     await cartApi.add({ productId, quantity: 1 })
     error.value = ''
+    showToast('已加入购物车，可前往结算', { duration: 1000, placement: 'top' })
   } catch (e) {
     error.value = e.message
   }
@@ -110,5 +152,23 @@ onMounted(fetchProducts)
 
 .hero-search-toolbar {
   margin-top: 30px;
+}
+
+.pager-controls {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.pager-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pager-controls input {
+  width: 88px;
 }
 </style>

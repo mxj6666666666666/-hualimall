@@ -6,12 +6,9 @@ import com.xinjiema.hualimall.pojo.Payment;
 import com.xinjiema.hualimall.pojo.Result;
 import com.xinjiema.hualimall.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -22,13 +19,10 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping
-    public Object createPayment(@RequestBody CreatePaymentRequest req, HttpServletResponse httpResponse) throws Exception {
+    // 【修改】createPayment 仅创建支付单并返回业务数据，不再直接输出 HTML
+    public Result<Payment> createPayment(@RequestBody CreatePaymentRequest req) {
         log.info("创建支付单: {}", req);
-        Payment payment = paymentService.createPayment(req, httpResponse);
-        if (httpResponse.isCommitted()) {
-            return null;
-        }
-        return Result.success(payment);
+        return Result.success(paymentService.createPayment(req));
     }
 
     @GetMapping("/{id}")

@@ -17,6 +17,9 @@ public interface PaymentMapper {
 
     Payment selectLatestByOrderId(@Param("orderId") Long orderId);
 
+    // 【新增】回填/修复 pay_url，避免旧数据或异常流程导致支付链接为空
+    int updatePayUrl(@Param("id") Long id, @Param("payUrl") String payUrl);
+
     /**
      * 查询订单下未终态的支付单（PENDING / PROCESSING），用于创建支付时的幂等性判断
      */

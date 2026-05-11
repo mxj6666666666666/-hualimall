@@ -31,6 +31,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { orderApi } from '../../api/modules/order'
 import { formatOrderStatus, formatPrice } from '../../utils/format'
+import { useToast } from '../../composables/useToast'
 
 const orders = ref([])
 const loading = ref(false)
@@ -38,6 +39,7 @@ const error = ref('')
 const total = ref(0)
 const query = reactive({ page: 1, pageSize: 10 })
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / query.pageSize)))
+const { showToast } = useToast()
 
 async function fetchOrders() {
   loading.value = true
@@ -63,6 +65,7 @@ async function cancelOrder(id) {
   try {
     await orderApi.cancel(id)
     await fetchOrders()
+    showToast('已取消订单', { duration: 1000, placement: 'top' })
   } catch (e) {
     error.value = e.message
   }

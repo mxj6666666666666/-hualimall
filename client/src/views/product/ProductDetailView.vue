@@ -29,6 +29,7 @@ import { cartApi } from '../../api/modules/cart'
 import { useAuthStore } from '../../store/modules/auth'
 import { formatPrice } from '../../utils/format'
 import { resolveMediaUrl } from '../../utils/media'
+import { useToast } from '../../composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
@@ -38,6 +39,7 @@ const error = ref('')
 const quantity = ref(1)
 const fallbackImage = 'https://via.placeholder.com/720x420?text=HualiMall'
 const authStore = useAuthStore()
+const { showToast } = useToast()
 
 onMounted(async () => {
   try {
@@ -61,7 +63,7 @@ async function addToCart() {
   error.value = ''
   try {
     await cartApi.add({ productId: detail.value.id, quantity: quantity.value })
-    router.push('/cart')
+    showToast(`已加入购物车 ×${quantity.value}，可前往结算`, { duration: 1000, placement: 'top' })
   } catch (e) {
     error.value = e.message
   } finally {

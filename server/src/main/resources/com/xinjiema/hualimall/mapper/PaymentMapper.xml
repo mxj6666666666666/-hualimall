@@ -59,6 +59,13 @@
         LIMIT 1
     </select>
 
+    <update id="updatePayUrl">
+        UPDATE payment
+        SET pay_url = #{payUrl},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
     <update id="updateStatusToClosed">
         UPDATE payment
         SET status = 'CLOSED',
