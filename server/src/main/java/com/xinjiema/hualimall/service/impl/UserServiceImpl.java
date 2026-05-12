@@ -8,11 +8,11 @@ import com.xinjiema.hualimall.pojo.User;
 import com.xinjiema.hualimall.service.UserService;
 import com.xinjiema.hualimall.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
-import java.util.Objects;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -22,6 +22,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -47,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
         User user = new User();
         user.setUsername(registerRequest.getUsername());
-        user.setPassword(registerRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setNickname(isBlank(registerRequest.getNickname()) ? registerRequest.getUsername() : registerRequest.getNickname());
         user.setAvatarUrl(registerRequest.getAvatarUrl());
         user.setRole(role);
@@ -83,7 +86,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("用户名和密码不能为空");
         }
         User user = userMapper.selectByUsername(loginRequest.getUsername());
-        if (user == null || !Objects.equals(user.getPassword(), loginRequest.getPassword())) {
+        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("用户名或密码错误");
         }
         if (user.getStatus() != null && user.getStatus() == 0) {

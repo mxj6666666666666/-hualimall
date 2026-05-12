@@ -2,6 +2,7 @@ package com.xinjiema.hualimall.config;
 
 import com.xinjiema.hualimall.interceptor.AuthInterceptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -25,6 +26,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/cart/**",
                         "/admin/**",
                         "/merchant/**",
+                        "/payments/**",
+                        "/pay/**",
                         "/users/me",
                         "/users/info",
                         "/user/me",
@@ -35,9 +38,21 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/users/register",
                         "/users/login",
                         "/users/sessions",
+                        "/users/logout",
                         "/user/register",
-                        "/user/login"
+                        "/user/login",
+                        "/payments/notify/**"
                 );
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 
     @Override

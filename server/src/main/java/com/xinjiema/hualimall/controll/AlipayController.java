@@ -2,6 +2,7 @@ package com.xinjiema.hualimall.controll;
 
 import com.alipay.api.AlipayApiException;
 import com.xinjiema.hualimall.service.PaymentService;
+import com.xinjiema.hualimall.utils.AuthContext;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,9 @@ public class AlipayController {
             return;
         }
         try {
-            String formHtml = paymentService.buildAlipayForm(paymentNo);
+            Long currentUserId = AuthContext.requireCurrentUserId();
+            String currentRole = AuthContext.requireCurrentUserRole();
+            String formHtml = paymentService.buildAlipayForm(paymentNo, currentUserId, currentRole);
             response.setContentType("text/html;charset=UTF-8");
             response.getWriter().write(formHtml);
             response.getWriter().flush();

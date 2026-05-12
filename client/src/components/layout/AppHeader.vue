@@ -30,6 +30,7 @@
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../../store/modules/auth'
+import { userApi } from '../../api/modules/user'
 import { resolveMediaUrl } from '../../utils/media'
 
 const auth = useAuthStore()
@@ -37,7 +38,12 @@ const router = useRouter()
 const fallbackAvatar = 'https://via.placeholder.com/72x72?text=U'
 const avatarUrl = computed(() => resolveMediaUrl(auth.user?.avatarUrl) || fallbackAvatar)
 
-function logout() {
+async function logout() {
+  try {
+    await userApi.logout()
+  } catch {
+    // noop
+  }
   auth.clearAuth()
   router.push('/login')
 }

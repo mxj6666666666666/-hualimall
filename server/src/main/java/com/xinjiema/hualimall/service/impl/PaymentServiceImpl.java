@@ -7,155 +7,133 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.xinjiema.hualimall.config.AlipayConfig;
-import com.xinjiema.hualimall.mapper.OrderMapper;      // 假设你已有订单 Mapper
+import com.xinjiema.hualimall.config.WechatPayProperties;
+import com.xinjiema.hualimall.mapper.OrderMapper;
 import com.xinjiema.hualimall.mapper.PaymentMapper;
 import com.xinjiema.hualimall.pojo.CreatePaymentRequest;
-import com.xinjiema.hualimall.pojo.Order;              // 假设你已有订单实体
+import com.xinjiema.hualimall.pojo.Order;
 import com.xinjiema.hualimall.pojo.Payment;
 import com.xinjiema.hualimall.service.PaymentService;
+import com.xinjiema.hualimall.utils.PaymentNoGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-    @Autowired
-    private AlipayConfig alipayConfig;
+    private static final String WECHAT_SUCCESS_XML = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
+    private static final String WECHAT_FAIL_XML = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[FAIL]]></return_msg></xml>";
 
+    private final AlipayConfig alipayConfig;
+    private final WechatPayProperties wechatPayProperties;
+    private final PaymentMapper paymentMapper;
+    private final OrderMapper orderMapper;
+    private final PaymentNoGenerator paymentNoGenerator;
 
-    @Autowired
-    private PaymentMapper paymentMapper;
+    public PaymentServiceImpl(AlipayConfig alipayConfig,
+                              WechatPayProperties wechatPayProperties,
+                              PaymentMapper paymentMapper,
+                              OrderMapper orderMapper,
+                              PaymentNoGenerator paymentNoGenerator) {
+        this.alipayConfig = alipayConfig;
+        this.wechatPayProperties = wechatPayProperties;
+        this.paymentMapper = paymentMapper;
+        this.orderMapper = orderMapper;
+        this.paymentNoGenerator = paymentNoGenerator;
+    }
 
-    @Autowired
-    private OrderMapper orderMapper;
-
-
-    // ======================== 1. 创建支付单 ========================
     @Override
     @Transactional(rollbackFor = Exception.class)
-    // 【修改】createPayment 只做业务创建并返回支付数据，不再输出 HTML
-    public Payment createPayment(CreatePaymentRequest req) {
-        if (req.getOrderId() == null || req.getChannel() == null) {
+    public Payment createPayment(CreatePaymentRequest req, Long currentUserId, String currentRole) {
+        if (req == null || req.getOrderId() == null || req.getChannel() == null) {
             throw new IllegalArgumentException("订单ID和支付渠道不能为空");
         }
-        String channel = req.getChannel().toUpperCase();
+        requireBuyerRole(currentRole);
+        String channel = req.getChannel().trim().toUpperCase(Locale.ROOT);
 
-        // ① 幂等：若已存在未终态的支付单，直接返回
-        Payment exist = paymentMapper.selectActiveByOrderId(req.getOrderId());
-        if (exist != null) {
-            log.info("订单 {} 已有进行中的支付单 {}，直接返回", req.getOrderId(), exist.getPaymentNo());
-            if ("ALIPAY".equals(channel) && "ALIPAY".equals(exist.getChannel())) {
-                // 【修改】幂等返回时也保证 payUrl 稳定可用，并回填数据库缺失值
-                String alipayEntryUrl = buildAlipayEntryUrl(exist.getPaymentNo());
-                if (exist.getPayUrl() == null || exist.getPayUrl().isBlank()) {
-                    paymentMapper.updatePayUrl(exist.getId(), alipayEntryUrl);
-                }
-                exist.setPayUrl(alipayEntryUrl);
-            }
-            return exist;
-        }
-
-        // ② 检查订单是否存在且可支付 (订单状态=0 待支付)
-        Order order = orderMapper.selectById(req.getOrderId());
+        Order order = orderMapper.selectByIdAndUserId(req.getOrderId(), currentUserId);
         if (order == null) {
-            throw new IllegalArgumentException("订单不存在: " + req.getOrderId());
+            throw new SecurityException("订单不存在或无支付权限");
         }
-        if (order.getStatus() != 0) {
+        if (order.getStatus() == null || order.getStatus() != 0) {
             throw new IllegalStateException("订单状态不允许支付，当前状态: " + order.getStatus());
         }
 
-        // ③ 组装支付单
+        Payment existing = paymentMapper.selectActiveByOrderId(order.getId());
+        if (existing != null) {
+            return existing;
+        }
+
         Payment payment = new Payment();
-        payment.setPaymentNo(generatePaymentNo());
-        payment.setOrderId(req.getOrderId());
+        payment.setPaymentNo(paymentNoGenerator.generate());
+        payment.setOrderId(order.getId());
         payment.setChannel(channel);
         payment.setStatus("PENDING");
-        payment.setAmount(order.getTotalAmount());          // 金额以订单为准
-        OffsetDateTime now = OffsetDateTime.now();
-        payment.setCreateTime(now);
-        payment.setUpdateTime(now);
-        payment.setExpireTime(now.plusMinutes(15));        // 15分钟过期
+        payment.setAmount(order.getTotalAmount());
+        payment.setCreateTime(OffsetDateTime.now());
+        payment.setUpdateTime(OffsetDateTime.now());
+        payment.setExpireTime(OffsetDateTime.now().plusMinutes(15));
 
-        // 【修改】按渠道写入可跳转地址，支付宝改为后端中转页
-        if ("ALIPAY".equals(payment.getChannel())) {
+        if ("ALIPAY".equals(channel)) {
             payment.setPayUrl(buildAlipayEntryUrl(payment.getPaymentNo()));
-        } else if ("WECHAT".equals(payment.getChannel())) {
-            // ---- 微信沙箱示例（扫码支付） ----
-            String mockUrl = "weixin://wxpay/bizpayurl?pr=mock_" + payment.getPaymentNo();
-            payment.setPayUrl(mockUrl);
-            payment.setCodeUrl(mockUrl);
+        } else if ("WECHAT".equals(channel)) {
+            String codeUrl = "weixin://wxpay/bizpayurl?pr=" + payment.getPaymentNo();
+            payment.setCodeUrl(codeUrl);
+            payment.setPayUrl(codeUrl);
         } else {
-            throw new IllegalArgumentException("不支持的支付渠道: " + payment.getChannel());
+            throw new IllegalArgumentException("不支持的支付渠道: " + channel);
         }
 
-        // ⑤ 入库
         paymentMapper.insert(payment);
-        // 【修改】创建返回必须稳定包含 payUrl，防止前端拿到 null/undefined
-        if (payment.getPayUrl() == null || payment.getPayUrl().isBlank()) {
-            throw new IllegalStateException("支付链接生成失败");
-        }
-        log.info("创建支付单成功: {}", payment.getPaymentNo());
         return payment;
     }
 
     @Override
-    // 【新增】返回支付宝表单 HTML，由 Controller 负责输出到响应
-    public String buildAlipayForm(String paymentNo) throws AlipayApiException {
-        if (paymentNo == null || paymentNo.isBlank() || "null".equalsIgnoreCase(paymentNo) || "undefined".equalsIgnoreCase(paymentNo)) {
-            throw new IllegalArgumentException("支付单号不能为空");
-        }
-        // 【修改】首次跳转容错：短时重试，避免事务提交时序导致“支付单不存在”
-        Payment payment = null;
-        for (int i = 0; i < 5; i++) {
-            payment = paymentMapper.selectByPaymentNo(paymentNo);
-            if (payment != null) {
-                break;
-            }
-            try {
-                Thread.sleep(120);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("支付单创建尚未完成，请稍后重试", e);
-            }
-        }
+    public String buildAlipayForm(String paymentNo, Long currentUserId, String currentRole) throws AlipayApiException {
+        requireBuyerOrAdminRole(currentRole);
+        Payment payment = paymentMapper.selectByPaymentNo(paymentNo);
         if (payment == null) {
-            throw new IllegalStateException("支付单创建尚未完成，请稍后重试: " + paymentNo);
+            throw new IllegalArgumentException("支付单不存在");
         }
+        assertOrderAccessible(payment.getOrderId(), currentUserId, currentRole);
         if (!"ALIPAY".equals(payment.getChannel())) {
-            throw new IllegalStateException("该支付单不是支付宝渠道: " + paymentNo);
+            throw new IllegalStateException("该支付单不是支付宝渠道");
         }
         Order order = orderMapper.selectById(payment.getOrderId());
         if (order == null) {
-            throw new IllegalArgumentException("订单不存在: " + payment.getOrderId());
+            throw new IllegalArgumentException("订单不存在");
         }
         return generateAlipayForm(order, paymentNo);
     }
 
-    // ======================== 2. 查询支付单详情 ========================
     @Override
-    public Payment getById(Long id) {
+    public Payment getById(Long id, Long currentUserId, String currentRole) {
         Payment payment = paymentMapper.selectById(id);
         if (payment == null) {
             throw new IllegalArgumentException("支付单不存在: " + id);
         }
+        assertOrderAccessible(payment.getOrderId(), currentUserId, currentRole);
         return payment;
     }
 
-    // ======================== 3. 根据订单查询最新支付单 ========================
     @Override
-    public Payment getLatestByOrderId(Long orderId) {
+    public Payment getLatestByOrderId(Long orderId, Long currentUserId, String currentRole) {
+        assertOrderAccessible(orderId, currentUserId, currentRole);
         Payment payment = paymentMapper.selectLatestByOrderId(orderId);
         if (payment == null) {
             throw new IllegalArgumentException("该订单暂无支付记录: " + orderId);
@@ -163,199 +141,168 @@ public class PaymentServiceImpl implements PaymentService {
         return payment;
     }
 
-    // ======================== 4. 关闭支付单 ========================
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void closePayment(Long id) {
-        Payment payment = getById(id);
-        String status = payment.getStatus();
-
-        // 仅 PENDING / PROCESSING 可关闭
-        if (!"PENDING".equals(status) && !"PROCESSING".equals(status)) {
-            if ("SUCCESS".equals(status)) {
-                throw new IllegalStateException("支付已完成，无法关闭");
-            }
-            throw new IllegalStateException("当前状态不允许关闭: " + status);
+    public void closePayment(Long id, Long currentUserId, String currentRole) {
+        Payment payment = paymentMapper.selectById(id);
+        if (payment == null) {
+            throw new IllegalArgumentException("支付单不存在: " + id);
         }
-
-        // 若有渠道交易号（已扫码但未付款），尝试通知渠道关单
-        if (payment.getChannelTradeNo() != null) {
-            closeChannelOrder(payment);
+        assertOrderAccessible(payment.getOrderId(), currentUserId, currentRole);
+        if (!"PENDING".equals(payment.getStatus()) && !"PROCESSING".equals(payment.getStatus())) {
+            throw new IllegalStateException("当前状态不允许关闭: " + payment.getStatus());
         }
-
-        // 更新本地状态为 CLOSED
-        OffsetDateTime now = OffsetDateTime.now();
-        int rows = paymentMapper.updateStatusToClosed(id, now);
+        int rows = paymentMapper.updateStatusToClosed(id, OffsetDateTime.now());
         if (rows == 0) {
             throw new IllegalStateException("关闭失败，支付单状态可能已变更");
         }
-        log.info("支付单 {} 已关闭", payment.getPaymentNo());
     }
 
-    // ======================== 5. 支付宝异步通知处理 ========================
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String handleAlipayNotify(HttpServletRequest request) throws AlipayApiException {
-
-        Map<String, String> params = new HashMap<>();
-        Map<String, String[]> requestParams = request.getParameterMap();
-        for (String name : requestParams.keySet()) {
-            String[] values = requestParams.get(name);
-            String valueStr = "";
-            for (int i = 0; i < values.length; i++) {
-                valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
-            }
-            params.put(name, valueStr);
-        }
-
-        log.info("收到支付宝回调: {}", params);
-
-//        // 验签前打印调试信息
-//        log.info("=== 验签调试信息 ===");
-//        log.info("支付宝公钥: {}", alipayConfig.getAlipayPublicKey());
-//        log.info("公钥长度: {}", alipayConfig.getAlipayPublicKey().length());
-//        log.info("签名类型: {}", alipayConfig.getSignType());
-//        log.info("字符编码: {}", alipayConfig.getCharset());
-//        log.info("网关地址: {}", alipayConfig.getGatewayUrl());
-//        log.info("应用ID: {}", alipayConfig.getAppId());
-//        log.info("回调参数中的sign: {}", params.get("sign"));
-//        log.info("回调参数中的sign_type: {}", params.get("sign_type"));
-//        log.info("回调参数总数: {}", params.size());
-
-        // ① 验签（必须做，否则有安全风险）
-        // ============ TODO 替换为你的支付宝验签实现 ============
-        boolean checkSignature = AlipaySignature.rsaCheckV1(
-                params,  // 完整参数（包含sign）
+        Map<String, String> params = collectRequestParams(request);
+        boolean signatureValid = AlipaySignature.rsaCheckV1(
+                params,
                 alipayConfig.getAlipayPublicKey(),
                 alipayConfig.getCharset(),
                 alipayConfig.getSignType()
         );
-
-        // ② 提取参数
-        String outTradeNo = params.get("out_trade_no");        // 你的订单编号
-        String tradeNo = params.get("trade_no");               // 支付宝交易号
-        String totalAmountStr = params.get("total_amount");       // 交易金额
-        String buyerId = params.get("buyer_id");               // 买家支付宝用户ID
-        String gmtPayment = params.get("gmt_payment");         // 交易付款时间
-        String tradeStatus = params.get("trade_status");
-
-        if (outTradeNo == null || tradeStatus == null) {
-            log.error("回调参数缺失");
+        if (!signatureValid) {
+            log.warn("支付宝回调验签失败");
             return "failure";
         }
 
-        // ③ 查询本地支付单
+        String appId = params.get("app_id");
+        if (appId == null || !appId.equals(alipayConfig.getAppId())) {
+            log.warn("支付宝回调 app_id 非法: {}", appId);
+            return "failure";
+        }
+
+        String outTradeNo = params.get("out_trade_no");
+        String tradeStatus = params.get("trade_status");
+        String tradeNo = params.get("trade_no");
+        String totalAmountStr = params.get("total_amount");
+        if (outTradeNo == null || tradeStatus == null || tradeNo == null || totalAmountStr == null) {
+            return "failure";
+        }
+
         Payment payment = paymentMapper.selectByPaymentNo(outTradeNo);
         if (payment == null) {
-            log.error("本地支付单不存在: {}", outTradeNo);
             return "failure";
         }
-
-        // ④ 幂等：已成功则直接返回
         if ("SUCCESS".equals(payment.getStatus())) {
             return "success";
         }
 
-        // ⑤ 金额校验
+        BigDecimal notifyAmount;
         try {
-            BigDecimal notifyAmount = new BigDecimal(totalAmountStr);
-            if (payment.getAmount().compareTo(notifyAmount) != 0) {
-                log.error("金额不一致: 本地={}, 回调={}", payment.getAmount(), notifyAmount);
-                return "failure";
-            }
+            notifyAmount = new BigDecimal(totalAmountStr);
         } catch (NumberFormatException e) {
-            log.error("回调金额格式错误: {}", totalAmountStr);
+            return "failure";
+        }
+        if (payment.getAmount().compareTo(notifyAmount) != 0) {
             return "failure";
         }
 
-        // ⑥ 根据交易状态更新本地
-        if (checkSignature) {
-            if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
-                // 支付成功
-                OffsetDateTime paidTime = OffsetDateTime.now();
-                int rows = paymentMapper.updateStatusToSuccess(payment.getId(), tradeNo, paidTime);
-                if (rows > 0) {
-                    // 联动更新订单状态为“已支付”(1)
-                    orderMapper.updateOrderStatus(payment.getOrderId(), 1);
-                    log.info("订单编号: {}", outTradeNo);
-                    log.info("支付宝交易号: {}", tradeNo);
-                    log.info("交易金额: {}", totalAmountStr);
-                    log.info("买家ID: {}", buyerId);
-                    log.info("付款时间: {}", gmtPayment);
-                }
-            } else if ("TRADE_CLOSED".equals(tradeStatus)) {
-                // 交易关闭（超时等原因）
-                OffsetDateTime closeTime = OffsetDateTime.now();
-                paymentMapper.updateStatusToClosed(payment.getId(), closeTime);
-                log.info("支付单关闭(来自回调): {}", outTradeNo);
+        if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
+            int rows = paymentMapper.updateStatusToSuccess(payment.getId(), tradeNo, OffsetDateTime.now());
+            if (rows > 0) {
+                orderMapper.updateOrderStatus(payment.getOrderId(), 1);
             }
-        }else {
-            System.out.println("验签失败！可能是伪造的回调请求");
-            return "failure";
+            return "success";
         }
-        return "success";
+        if ("TRADE_CLOSED".equals(tradeStatus)) {
+            paymentMapper.updateStatusToClosed(payment.getId(), OffsetDateTime.now());
+            return "success";
+        }
+        return "failure";
     }
 
-    // ======================== 6. 微信异步通知处理 ========================
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String handleWechatNotify(String notifyBody) {
-        log.info("收到微信回调: {}", notifyBody);
-        // TODO 实现微信回调：解析XML -> 验签 -> 金额校验 -> 更新支付单+订单状态 -> 返回SUCCESS或FAIL XML
-        // 以下为伪代码，请自行填充
-        /*
-        Map<String, String> params = WXPayUtil.xmlToMap(notifyBody);
-        if (!WXPayUtil.isSignatureValid(params, apiKey)) return failXml();
-        String outTradeNo = params.get("out_trade_no");
-        Payment payment = paymentMapper.selectByPaymentNo(outTradeNo);
-        ... 类似支付宝流程
-        return "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
-        */
-        log.warn("微信回调尚未完整实现");
-        return "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
+        try {
+            Map<String, String> params = parseXmlToMap(notifyBody);
+            if (!"SUCCESS".equals(params.get("return_code")) || !"SUCCESS".equals(params.get("result_code"))) {
+                return WECHAT_FAIL_XML;
+            }
+            if (!isWechatSignatureValid(params, wechatPayProperties.getApiV2Key())) {
+                return WECHAT_FAIL_XML;
+            }
+
+            String outTradeNo = params.get("out_trade_no");
+            String transactionId = params.get("transaction_id");
+            String totalFee = params.get("total_fee");
+            if (outTradeNo == null || transactionId == null || totalFee == null) {
+                return WECHAT_FAIL_XML;
+            }
+
+            Payment payment = paymentMapper.selectByPaymentNo(outTradeNo);
+            if (payment == null) {
+                return WECHAT_FAIL_XML;
+            }
+            if ("SUCCESS".equals(payment.getStatus())) {
+                return WECHAT_SUCCESS_XML;
+            }
+
+            BigDecimal callbackAmount = new BigDecimal(totalFee).movePointLeft(2);
+            if (payment.getAmount().compareTo(callbackAmount) != 0) {
+                return WECHAT_FAIL_XML;
+            }
+
+            int rows = paymentMapper.updateStatusToSuccess(payment.getId(), transactionId, OffsetDateTime.now());
+            if (rows > 0) {
+                orderMapper.updateOrderStatus(payment.getOrderId(), 1);
+            }
+            return WECHAT_SUCCESS_XML;
+        } catch (Exception e) {
+            log.warn("微信回调处理失败: {}", e.getMessage());
+            return WECHAT_FAIL_XML;
+        }
     }
 
-    // ======================== 7. 超时支付单对账/关单 ========================
     @Override
     public void reconcileTimeoutPayments() {
         List<Payment> list = paymentMapper.selectTimeoutPending(OffsetDateTime.now());
         for (Payment p : list) {
             try {
-                if (p.getChannelTradeNo() != null) {
-                    closeChannelOrder(p);
-                }
                 int rows = paymentMapper.updateStatusToClosed(p.getId(), OffsetDateTime.now());
                 if (rows > 0) {
                     log.info("超时支付单已自动关闭: {}", p.getPaymentNo());
                 }
             } catch (Exception e) {
-                log.error("自动关单失败: {}, 原因: {}", p.getPaymentNo(), e.getMessage());
+                log.warn("自动关单失败: {}", p.getPaymentNo());
             }
         }
     }
 
-    // ======================== 私有辅助方法 ========================
-    private String generatePaymentNo() {
-        String timePart = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        int rand = new Random().nextInt(10000);
-        return String.format("P%s%04d", timePart, rand);
-    }
-
-    private void closeChannelOrder(Payment payment) {
-        // TODO 实现真实的支付宝/微信关单逻辑
-        if ("ALIPAY".equals(payment.getChannel())) {
-            // AlipayClient client = ...;
-            // AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
-            // request.setBizContent("{\"out_trade_no\":\"" + payment.getPaymentNo() + "\"}");
-            // client.execute(request);
-            log.info("调用支付宝关单: {}", payment.getPaymentNo());
-        } else if ("WECHAT".equals(payment.getChannel())) {
-            // 微信关单API
-            log.info("调用微信关单: {}", payment.getPaymentNo());
+    private void assertOrderAccessible(Long orderId, Long currentUserId, String currentRole) {
+        if ("ADMIN".equals(currentRole)) {
+            return;
+        }
+        Order order = orderMapper.selectByIdAndUserId(orderId, currentUserId);
+        if (order == null) {
+            throw new SecurityException("订单不存在或无访问权限");
         }
     }
 
-    // 【删除】已移除 writeAlipayForm(..., HttpServletResponse)，改为 buildAlipayForm + Controller 输出
+    private void requireBuyerRole(String currentRole) {
+        if (!"BUYER".equals(currentRole)) {
+            throw new SecurityException("仅买家可发起支付");
+        }
+    }
+
+    private void requireBuyerOrAdminRole(String currentRole) {
+        if (!"BUYER".equals(currentRole) && !"ADMIN".equals(currentRole)) {
+            throw new SecurityException("无支付权限");
+        }
+    }
+
+    private String buildAlipayEntryUrl(String paymentNo) {
+        return "/pay/alipay/" + paymentNo;
+    }
+
     private String generateAlipayForm(Order order, String outTradeNo) throws AlipayApiException {
         AlipayClient alipayClient = new DefaultAlipayClient(
                 alipayConfig.getGatewayUrl(),
@@ -373,10 +320,9 @@ public class PaymentServiceImpl implements PaymentService {
         String subject = "花礼商城";
         if (order.getItems() != null && !order.getItems().isEmpty()) {
             if (order.getItems().size() == 1) {
-                subject = order.getItems().getFirst().getProductName();
+                subject = order.getItems().get(0).getProductName();
             } else {
-                subject = order.getItems().getFirst().getProductName()
-                        + " 等" + order.getItems().size() + "件商品";
+                subject = order.getItems().get(0).getProductName() + " 等" + order.getItems().size() + "件商品";
             }
         }
         JSONObject bizContent = new JSONObject();
@@ -385,12 +331,79 @@ public class PaymentServiceImpl implements PaymentService {
         bizContent.put("subject", subject);
         bizContent.put("product_code", "FAST_INSTANT_TRADE_PAY");
         alipayRequest.setBizContent(bizContent.toString());
-
         return alipayClient.pageExecute(alipayRequest).getBody();
     }
 
-    // 【新增】前端通过此地址访问后端中转 Controller，再由 Controller 输出支付宝 form
-    private String buildAlipayEntryUrl(String paymentNo) {
-        return "/pay/alipay/" + paymentNo;
+    private Map<String, String> collectRequestParams(HttpServletRequest request) {
+        Map<String, String> params = new HashMap<>();
+        Map<String, String[]> requestParams = request.getParameterMap();
+        for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
+            String[] values = entry.getValue();
+            if (values == null || values.length == 0) {
+                continue;
+            }
+            params.put(entry.getKey(), String.join(",", values));
+        }
+        return params;
+    }
+
+    private Map<String, String> parseXmlToMap(String xml) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setExpandEntityReferences(false);
+        Document document = factory.newDocumentBuilder()
+                .parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        NodeList nodeList = document.getDocumentElement().getChildNodes();
+        Map<String, String> map = new HashMap<>();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                map.put(node.getNodeName(), node.getTextContent());
+            }
+        }
+        return map;
+    }
+
+    private boolean isWechatSignatureValid(Map<String, String> params, String apiKey) {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new IllegalStateException("未配置微信支付 APIv2 密钥");
+        }
+        String sign = params.get("sign");
+        if (sign == null || sign.isBlank()) {
+            return false;
+        }
+        SortedMap<String, String> sorted = new TreeMap<>();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if ("sign".equals(key) || value == null || value.isBlank()) {
+                continue;
+            }
+            sorted.put(key, value);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : sorted.entrySet()) {
+            sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+        }
+        sb.append("key=").append(apiKey);
+        String localSign = md5Hex(sb.toString()).toUpperCase(Locale.ROOT);
+        return localSign.equals(sign.toUpperCase(Locale.ROOT));
+    }
+
+    private String md5Hex(String content) {
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            byte[] digest = md5.digest(content.getBytes(StandardCharsets.UTF_8));
+            StringBuilder builder = new StringBuilder(digest.length * 2);
+            for (byte b : digest) {
+                builder.append(String.format("%02x", b));
+            }
+            return builder.toString();
+        } catch (Exception e) {
+            throw new IllegalStateException("微信签名计算失败", e);
+        }
     }
 }
+

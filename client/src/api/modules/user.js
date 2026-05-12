@@ -7,6 +7,9 @@ export const userApi = {
   login(data) {
     return request.post('/users/sessions', data)
   },
+  logout() {
+    return request.delete('/users/sessions')
+  },
   profile() {
     return request.get('/users/me')
   },

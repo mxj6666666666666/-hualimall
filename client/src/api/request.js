@@ -5,14 +5,7 @@ import { useAuthStore } from '../store/modules/auth'
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 10000,
-})
-
-request.interceptors.request.use((config) => {
-  const authStore = useAuthStore()
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`
-  }
-  return config
+  withCredentials: true,
 })
 
 request.interceptors.response.use(

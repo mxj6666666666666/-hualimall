@@ -46,6 +46,13 @@
         SELECT * FROM orders WHERE id = #{id}
     </select>
 
+    <select id="selectByIdAndUserId" resultType="com.xinjiema.hualimall.pojo.Order">
+        SELECT *
+        FROM orders
+        WHERE id = #{id}
+          AND user_id = #{userId}
+    </select>
+
     <select id="selectByIdByMerchantId" resultType="com.xinjiema.hualimall.pojo.Order">
         SELECT o.*
         FROM orders o

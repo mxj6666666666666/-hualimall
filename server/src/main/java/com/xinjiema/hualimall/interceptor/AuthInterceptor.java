@@ -1,7 +1,9 @@
 package com.xinjiema.hualimall.interceptor;
 
+import com.xinjiema.hualimall.config.AuthCookieProperties;
 import com.xinjiema.hualimall.utils.AuthContext;
 import com.xinjiema.hualimall.utils.JwtUtils;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Autowired
+    private AuthCookieProperties authCookieProperties;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (HttpMethod.OPTIONS.matches(request.getMethod())) {
@@ -27,12 +32,14 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new SecurityException("请先登录");
+        String token = readTokenFromCookie(request);
+        if (token == null || token.isEmpty()) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring("Bearer ".length()).trim();
+            }
         }
-        String token = authHeader.substring("Bearer ".length()).trim();
-        if (token.isEmpty()) {
+        if (token == null || token.isEmpty()) {
             throw new SecurityException("token不能为空");
         }
 
@@ -68,5 +75,18 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
         String normalizedPath = requestUri.toLowerCase(Locale.ROOT);
         return normalizedPath.equals("/merchant") || normalizedPath.startsWith("/merchant/");
+    }
+
+    private String readTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null || cookies.length == 0) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (authCookieProperties.getName().equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

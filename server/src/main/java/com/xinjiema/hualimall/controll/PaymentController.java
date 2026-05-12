@@ -5,6 +5,7 @@ import com.xinjiema.hualimall.pojo.CreatePaymentRequest;
 import com.xinjiema.hualimall.pojo.Payment;
 import com.xinjiema.hualimall.pojo.Result;
 import com.xinjiema.hualimall.service.PaymentService;
+import com.xinjiema.hualimall.utils.AuthContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,22 +23,30 @@ public class PaymentController {
     // 【修改】createPayment 仅创建支付单并返回业务数据，不再直接输出 HTML
     public Result<Payment> createPayment(@RequestBody CreatePaymentRequest req) {
         log.info("创建支付单: {}", req);
-        return Result.success(paymentService.createPayment(req));
+        Long currentUserId = AuthContext.requireCurrentUserId();
+        String currentRole = AuthContext.requireCurrentUserRole();
+        return Result.success(paymentService.createPayment(req, currentUserId, currentRole));
     }
 
     @GetMapping("/{id}")
     public Result<Payment> getPaymentById(@PathVariable Long id) {
-        return Result.success(paymentService.getById(id));
+        Long currentUserId = AuthContext.requireCurrentUserId();
+        String currentRole = AuthContext.requireCurrentUserRole();
+        return Result.success(paymentService.getById(id, currentUserId, currentRole));
     }
 
     @GetMapping("/order/{orderId}")
     public Result<Payment> getPaymentByOrderId(@PathVariable Long orderId) {
-        return Result.success(paymentService.getLatestByOrderId(orderId));
+        Long currentUserId = AuthContext.requireCurrentUserId();
+        String currentRole = AuthContext.requireCurrentUserRole();
+        return Result.success(paymentService.getLatestByOrderId(orderId, currentUserId, currentRole));
     }
 
     @PutMapping("/{id}/close")
     public Result<String> closePayment(@PathVariable Long id) {
-        paymentService.closePayment(id);
+        Long currentUserId = AuthContext.requireCurrentUserId();
+        String currentRole = AuthContext.requireCurrentUserRole();
+        paymentService.closePayment(id, currentUserId, currentRole);
         return Result.success("关闭成功");
     }
 

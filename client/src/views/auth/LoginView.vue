@@ -93,8 +93,7 @@ async function handleLogin() {
   loading.value = true
   error.value = ''
   try {
-    const result = await userApi.login(form)
-    authStore.setToken(result.token)
+    await userApi.login(form)
     const profile = await userApi.profile()
     authStore.setUser(profile)
     const redirectPath = route.query.redirect || '/products'
