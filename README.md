@@ -227,15 +227,15 @@ natapp -authtoken=你的token
 
 *** 买家端 ：***
 
-![image](image\image.png)
+![image]([image\image.png](https://github.com/mxj6666666666666/-hualimall/blob/master/image/image.png))
 
-![image](image\imagecopy.png)
+![image]([image\imagecopy.png](https://github.com/mxj6666666666666/-hualimall/blob/master/image/imagecopy.png))
 
-![image](image\imagecopy2.png)
+![image]([image\imagecopy2.png](https://github.com/mxj6666666666666/-hualimall/blob/master/image/imagecopy2.png))
 
-![image](image\imagecopy3.png)
+![image]([image\imagecopy3.png](https://github.com/mxj6666666666666/-hualimall/blob/master/image/imagecopy3.png))
 
-![image](image\imagecopy4.png)
+![image]([image\imagecopy4.png](https://github.com/mxj6666666666666/-hualimall/blob/master/image/imagecopy4.png))
 
 
 
@@ -243,9 +243,9 @@ natapp -authtoken=你的token
 
 *** 商家端：***
 
-![image](image\imagecopy5.png)
+![image]([image\imagecopy5.png](https://github.com/mxj6666666666666/-hualimall/blob/master/image/imagecopy5.png))
 
-![image](image\imagecopy6.png)
+![image]([image\imagecopy6.png](https://github.com/mxj6666666666666/-hualimall/blob/master/image/imagecopy6.png))
 
 
 
