@@ -47,11 +47,6 @@
         <p class="sub">支付单号：{{ payment.paymentNo || payment.id || '-' }}</p>
         <p class="sub">支付状态：{{ formatPaymentStatus(payment.status) }}</p>
         <p v-if="payment.expireTime" class="sub">过期时间：{{ payment.expireTime }}</p>
-        <div class="pay-link" v-if="payment.payUrl || payment.codeUrl">
-          <a class="btn btn-primary" :href="payment.payUrl || payment.codeUrl" target="_blank" rel="noreferrer">
-            打开收银台/二维码链接
-          </a>
-        </div>
       </article>
     </div>
   </section>
@@ -188,7 +183,6 @@ function startPolling() {
   }, 3000)
 }
 
-// 【新增】将后端返回的支付入口地址转换为可直接 window.open 的完整地址
 function resolvePayUrl(rawUrl) {
   if (!rawUrl) return ''
   if (/^[a-z][a-z\d+\-.]*:\/\//i.test(rawUrl)) return rawUrl
@@ -198,7 +192,6 @@ function resolvePayUrl(rawUrl) {
   return `${base}/${rawUrl}`
 }
 
-// 【新增】创建支付单后先确认数据库中可查询到支付单，避免事务提交时序导致 500
 async function ensurePaymentReady() {
   let lastError = null
   for (let i = 0; i < 3; i += 1) {
@@ -309,9 +302,5 @@ onUnmounted(stopPolling)
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-}
-
-.pay-link {
-  margin-top: 12px;
 }
 </style>
